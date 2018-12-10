@@ -47,7 +47,7 @@ eligibleRegions maxX maxY points = [Point x y | x <- [0..maxX], y <- [0..maxY], 
 
 main :: IO() 
 main = do
-    input <- readFile "input6.txt"
+    input <- readFile "input/day6.txt"
     let coordinates = map parse $ lines input
     let maxX = maximum $ map xCoordinate coordinates
     let maxY = maximum $ map yCoordinate coordinates

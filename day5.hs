@@ -16,7 +16,7 @@ part2 polymers = minimum $ map (part1WithFilter polymers) (distinctPolymers poly
 
 main :: IO() 
 main = do
-    input <- readFile "input5.txt"
+    input <- readFile "input/day5.txt"
     let polymers = head (lines input)
     print $ part1 polymers
     print $ part2 polymers

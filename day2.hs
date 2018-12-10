@@ -24,7 +24,7 @@ part2 strs = [ls `intersect` rs | ls <- strs, rs <- strs, stringDistance ls rs =
 
 main :: IO ()
 main = do
-    input <- readFile "input2.txt"
+    input <- readFile "input/day2.txt"
     let frequencies = map letterFrequency (lines input)
     let freq2total = (sum [1 | x <- (map frequency2Exists frequencies), x == True])
     let freq3total = (sum [1 | x <- (map frequency3Exists frequencies), x == True])

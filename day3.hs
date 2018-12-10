@@ -51,7 +51,7 @@ part2 claims = claimId $ Set.findMin $ (Set.fromList claims) `Set.difference` (S
 
 main :: IO ()
 main = do
-    input <- readFile "input3.txt"
+    input <- readFile "input/day3.txt"
     let claims = [parseClaim . map read $ splitOn line "# @,:x" | line <- (lines input)]
     print $ part1 claims
     print $ part2 claims

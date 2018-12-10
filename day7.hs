@@ -81,7 +81,7 @@ part2 edgeMap = ticker (-1) [] edgeMap
 
 main :: IO() 
 main = do
-    input <- readFile "input7.txt"
+    input <- readFile "input/day7.txt"
     let edgeMap = toEdgeMap Map.empty $ parseDependencies input
     print $ part1 edgeMap
     print $ part2 edgeMap

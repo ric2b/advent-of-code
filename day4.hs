@@ -82,7 +82,7 @@ part2 guardFrequencyLogs = resulter $ Map.foldrWithKey folder (0, (0, 0)) (maxGu
 
 main :: IO() 
 main = do
-    input <- readFile "input4.txt"
+    input <- readFile "input/day4.txt"
     let orderedEvents = sort $ map (parseEvent . splitEvent) (lines input)
     print $ part1 $ sleepiestGuard $ makePatrolLogs Nothing (addGuardIds Nothing orderedEvents) Map.empty
     print $ part2 $ makePatrolLogs Nothing (addGuardIds Nothing orderedEvents) Map.empty

@@ -25,7 +25,7 @@ part2 ints = loop (cycle ints) 0 Set.empty
 
 main :: IO ()
 main = do
-    input <- readFile "input1.txt"
+    input <- readFile "input/day1.txt"
     let ints = stringsToInts (lines input)
     print (part1 ints)
     print (part2 ints)
