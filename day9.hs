@@ -1,59 +1,40 @@
-import Data.List
--- N marbles, numbered [1..N[
--- highest score after last marble
--- points: if marble is multiple of 23, keep marble (add to score), remove marble 7 cc and add to score
-
--- Note: compile with -O2
+import Data.Sequence (Seq)
+import qualified Data.Sequence as Seq
+import qualified Data.IntMap.Strict as IntMap
 
 main :: IO() 
 main = do
     input <- words <$> readFile "input/day9.txt"
     let nPlayers = read $ input !! 0 ::Int
     let maxMarble = read $ input !! 6 ::Int
-    print $ part1 nPlayers maxMarble
-    --print $ part2 nPlayers (maxMarble * 100)
+    print "I didn't write this, taken from reddit because my original solution was awfully slow :/"
+    print $ playGame nPlayers maxMarble
+    print $ playGame nPlayers (maxMarble * 100)
+
 
 placeIndex = 2
 removeIndex = 7
-buzzer = 23    
 
-type Player = Int
-type Score = Int
-type Marble = Int
+isScoreMarble :: Int -> Bool
+isScoreMarble i = i `rem` 23 == 0   
 
-placeMarble :: Marble -> [Marble] -> [Marble]
-placeMarble newMarble placedMarbles
-    | placedMarbles == [] = newMarble:[0]  -- Starts with the 0 marble in place
-    | otherwise = newMarble : drop placeIndex placedMarbles ++ take placeIndex placedMarbles   
+playGame :: Int {- ^ players -} -> Int {- ^ max marble -} -> Int {- ^ max score -}
+playGame players marbles = loop IntMap.empty (Seq.singleton 0) 1
+  where
+    loop scores circle i
+      | i > marbles = maximum scores
+      | isScoreMarble i =
+          case rotate (-removeIndex) circle of
+            Seq.Empty              -> error "game: empty circle"
+            picked Seq.:<| circle' -> loop scores' circle' (i+1)
+              where
+                scores' = IntMap.insertWith (+) (i `rem` players) (i + picked) scores
+      | otherwise = loop scores (i Seq.<| rotate placeIndex circle) (i+1)
 
+rotate :: Int -> Seq a -> Seq a
+rotate n xs
+  | Seq.null xs = xs
+  | otherwise   = case Seq.splitAt (n `mod` Seq.length xs) xs of
+                    (l, r) -> r Seq.>< l
 
-takeMarble :: [Marble] -> (Marble, [Marble])
-takeMarble placedMarbles = (reversedMarbles !! removeIndex, reverse (drop (removeIndex + 1) reversedMarbles ++ take removeIndex reversedMarbles))
-    where reversedMarbles = reverse (tail placedMarbles ++ [head placedMarbles])
-
-
--- The Marble list should be sorted!    
-makePlay :: Score -> [Marble] -> [Marble] -> (Score, [Marble], [Marble])
-makePlay playerScore marbles placedMarbles
-    | head marbles `mod` buzzer == 0 = (playerScore + (head marbles) + fst (takeMarble placedMarbles), tail marbles, snd (takeMarble placedMarbles))
-    | otherwise = (playerScore, tail marbles, placeMarble (head marbles) placedMarbles)
-
-
-playGame :: Int -> [Score] -> [Marble] -> [Marble] -> [Score]
-playGame _ scores [] _ = scores
-playGame currentPlayer scores nextMarbles placedMarbles = 
-    playGame 
-        ((currentPlayer + 1) `mod` length scores) 
-        (changeScore currentPlayer (takeScore currentPlay) scores) 
-        (takeNextMarbles currentPlay) 
-        (takePlacedMarbles currentPlay)
-        where 
-            currentPlay = makePlay (scores !! currentPlayer) nextMarbles placedMarbles
-            takeScore (score, _, _) = score
-            takeNextMarbles (_, nextMarbles, _) = nextMarbles
-            takePlacedMarbles (_, _, placedMarbles) = placedMarbles
-            changeScore index newScore scores = take index scores ++ [newScore] ++ drop (index + 1) scores
-
-
-part1 :: Int -> Int -> Int    
-part1 players marbles = maximum $ playGame 0 (replicate players 0) [1..marbles] []
+                 
