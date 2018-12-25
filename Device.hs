@@ -1,7 +1,11 @@
 module Device (
     runProgram,
     runFlowProgram,
-    Instruction(..)
+    runInstruction,
+    opcodes,
+    Instruction(..),
+    State(..),
+    Opcode
 ) where
 
 import qualified Data.Map as Map

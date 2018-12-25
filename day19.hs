@@ -10,7 +10,7 @@ main = do
     let instructionPointer = read $ fromJust $ stripPrefix "#ip " $ head $ lines input
     let program = map parseInstruction $ drop 1 $ lines input
     let initialState = (Map.fromList (zip [0..5] (repeat 0)))
-    part1
+    -- part1
     print $ fromJust $ Map.lookup 0 $ runFlowProgram initialState instructionPointer program
     -- part2 - DANGEROUS, RAM EATER
     -- let initialState2 = Map.insert 0 1 initialState
