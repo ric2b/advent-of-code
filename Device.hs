@@ -32,7 +32,7 @@ runProgram nRegisters instructions = foldl runInstruction (Map.fromList (zip [0.
 runFlowProgram :: State -> Int -> [Instruction] -> State
 runFlowProgram state instructionPointer instructions
     -- | trace ("ip=" ++ show currentIP ++ " " ++ show (Map.elems state)) False = undefined
-    | succ currentIP < 0 || succ currentIP >= length instructions = state
+    | succ currentIP < 0 || succ currentIP > length instructions = state
     | otherwise = runFlowProgram newState instructionPointer instructions                
         where newState = Map.adjust succ instructionPointer $ runInstruction state currentInstruction
                 where currentInstruction = instructions !! (fromJust $ Map.lookup instructionPointer state)
