@@ -1,0 +1,34 @@
+#ip 4
+
+start:
+    r5 = 65536
+    r1 = 8595037 
+    goto A
+
+label A:
+    r3 = r5 & 255
+    r1 += r3
+    r1 = r1 & 16777215
+    r1 *= 65899
+    r1 = r1 & 16777215
+    if 256 > r5:
+        goto B
+    else:
+        goto start
+
+label C:
+    r2 = r3+1
+    r2 *= 256
+    if r2 > r5 (r2 updated!):
+        goto D 
+    r3 += 1
+    goto C
+
+label D
+    r5 = r3
+    goto A
+
+label B:
+    if r1 == r0:
+        STOP
+    goto start
