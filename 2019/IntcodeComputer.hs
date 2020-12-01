@@ -64,12 +64,11 @@ opcodeToOperation intcode = case instructionFromIntcode intcode of
             r = immediateParam 3 state
         in state {instructionPointer=(instructionPointer state) + 4, memory=Seq.update r (if a == b then 1 else 0) (memory state)}
 
-instructionFromIntcode intcode = (read . reverse . take 2 . reverse . show) intcode
-
 parameter intcode offset state
     | parameterMode intcode offset == Position = positionParam offset state
     | parameterMode intcode offset == Immediate = immediateParam offset state
 
+-- from right to left, after the 2 digits for the instruction, each digit is the parameter mode of the parameter 
 parameterMode :: Int -> Int -> ParameterMode
 parameterMode intcode offset 
     | offset + 2 > (length . show) intcode  = Position
@@ -78,7 +77,10 @@ parameterMode intcode offset
         '1' -> Immediate 
 
 data ParameterMode = Immediate | Position deriving (Eq)
- 
+
+-- the far right digits are the actual instruction
+instructionFromIntcode intcode = (read . reverse . take 2 . reverse . show) intcode
+
 positionParam offset state = readAddress (memory state) (readAddress (memory state) ((instructionPointer state) + offset))
 immediateParam offset state = readAddress (memory state) ((instructionPointer state) + offset)
 
@@ -88,7 +90,6 @@ data ComputerState = ComputerState {
     memory :: Seq.Seq Int,
     output :: Int
 } deriving (Eq, Show)
-
  
 readAddress memory index = Seq.index memory index
 
