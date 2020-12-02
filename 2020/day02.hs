@@ -1,34 +1,24 @@
 main = do
-    raw_input <- readFile "input/day02.txt"
-    let input = map read (lines raw_input) :: [Int]
-    -- let passwordPolicy = (parsePasswordPolicy . head . lines) raw_input
-    print $ length $ filter validPassword $ map parseSledPasswordPolicy $ lines raw_input -- 524
-    print $ length $ filter validPassword $ map parseTobogganPasswordPolicy $ lines raw_input -- 485
+    input <- lines <$> readFile "input/day02.txt"
+    print $ countValid SledRentalsPolicy input -- 524
+    print $ countValid TobogganCorporatePolicy input -- 485
 
-data PasswordPolicy = PasswordPolicy { password ::String, rule :: Rule } deriving (Show)
-data Rule = SledRentalsRule { token ::Char, tokenMin ::Int, tokenMax ::Int } 
-          | TobogganCorporateRule { token ::Char, tokenAtA ::Int, tokenAtB ::Int } deriving (Show)
+data PasswordAndPolicy = PasswordAndPolicy { password ::String, policy :: Policy } deriving (Show)
+data Policy = SledRentalsPolicy { token ::Char, tokenMin ::Int, tokenMax ::Int } 
+            | TobogganCorporatePolicy { token ::Char, indexA ::Int, indexB ::Int } deriving (Show)
 
---parseRule (minT:'-':maxT:' ':token:':':' ':password) = Rule { token = token, minT = (read minT), maxT = 2}
+countValid policyConstructor = length . (filter validPassword) . (map (parsePasswordAndPolicy policyConstructor))
 
-validPassword :: PasswordPolicy -> Bool
-validPassword (PasswordPolicy password (SledRentalsRule token tokenMin tokenMax)) = tokenMin <= tokenCount && tokenCount <= tokenMax
+validPassword :: PasswordAndPolicy -> Bool
+validPassword (PasswordAndPolicy password (SledRentalsPolicy token tokenMin tokenMax)) = tokenMin <= tokenCount && tokenCount <= tokenMax
     where tokenCount = (length . filter (token ==)) password
-validPassword (PasswordPolicy password (TobogganCorporateRule token tokenAtA tokenAtB)) = (password !! (tokenAtA - 1) == token) /= (password !! (tokenAtB - 1) == token)
+validPassword (PasswordAndPolicy password (TobogganCorporatePolicy token indexA indexB)) = tokenAtA /= tokenAtB
+    where tokenAtA = password !! (indexA - 1) == token
+          tokenAtB = password !! (indexB - 1) == token
 
-parseMin line = span (/= '-') line
-parseMax line = span (/= ' ') line
-parseToken (token:rest) = (token, rest)
-parsePassword line = tail line
-
-parseSledPasswordPolicy line = PasswordPolicy { password = parsedPassword, rule = SledRentalsRule { token = fst parsedToken, tokenMin = (read . fst) parsedMin, tokenMax = (read . fst) parsedMax } }
-                    where parsedPassword = (parsePassword . tail . snd) parsedToken
-                          parsedToken = (parseToken . tail . snd) parsedMax
-                          parsedMax = (parseMax . tail . snd) parsedMin
-                          parsedMin = parseMin line
-
-parseTobogganPasswordPolicy line = PasswordPolicy { password = parsedPassword, rule = TobogganCorporateRule { token = fst parsedToken, tokenAtA = (read . fst) parsedMin, tokenAtB = (read . fst) parsedMax } }
-                    where parsedPassword = (parsePassword . tail . snd) parsedToken
-                          parsedToken = (parseToken . tail . snd) parsedMax
-                          parsedMax = (parseMax . tail . snd) parsedMin
-                          parsedMin = parseMin line
+parsePasswordAndPolicy policyConstructor line = PasswordAndPolicy { password = parsedPassword, policy = policy }
+    where policy = policyConstructor (fst parsedToken) ((read . fst) parsedParamA) ((read . fst) parsedParamB)
+          parsedPassword = (tail . tail . snd) parsedToken
+          parsedToken = ((head . tail . snd) parsedParamB, (tail . tail . snd) parsedParamB)
+          parsedParamB = (span (/= ' ') . tail . snd) parsedParamA
+          parsedParamA = span (/= '-') line
