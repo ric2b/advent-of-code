@@ -1,14 +1,17 @@
-import Text.ParserCombinators.Parsec
-
 main = do
     input <- lines <$> readFile "input/day03.txt"
     let baseMap = map loadLine input
-    print $ length $ filter (treeAt baseMap) $ traverseToBottom baseMap (3, 1) (0, 0) -- 274
+    print $ head $ treesOnSlopes baseMap [(3, 1)] -- 274
+    print $ foldl1 (*) $ treesOnSlopes baseMap [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)] -- 6050183040
 
 type BaseMap = [[Bool]]
 
+treesOnSlopes :: BaseMap -> [(Int, Int)] -> [Int]
+treesOnSlopes baseMap slopes = map (treesEncontered baseMap) slopes
+    where treesEncontered baseMap (speed_x, speed_y) = length $ filter (treeAt baseMap) $ traverseToBottom baseMap (0, 0) (speed_x, speed_y)
+
 traverseToBottom :: BaseMap -> (Int, Int) -> (Int, Int) -> [(Int, Int)]
-traverseToBottom baseMap (speed_x, speed_y) (x, y) | y < baseMapHeight = [(x, y)] ++ traverseToBottom baseMap (speed_x, speed_y) (x + speed_x `mod` baseMapWidth, y + speed_y)
+traverseToBottom baseMap (x, y) (speed_x, speed_y) | y < baseMapHeight = [(x, y)] ++ traverseToBottom baseMap (x + speed_x `mod` baseMapWidth, y + speed_y) (speed_x, speed_y)
                         | otherwise = []
                             where baseMapHeight = length baseMap
                                   baseMapWidth = (length . head) baseMap
