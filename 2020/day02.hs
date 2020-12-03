@@ -1,3 +1,5 @@
+import Text.ParserCombinators.Parsec
+
 main = do
     input <- lines <$> readFile "input/day02.txt"
     print $ countValid SledRentalsPolicy input -- 524
@@ -7,7 +9,11 @@ data PasswordAndPolicy = PasswordAndPolicy { password ::String, policy :: Policy
 data Policy = SledRentalsPolicy { token ::Char, tokenMin ::Int, tokenMax ::Int } 
             | TobogganCorporatePolicy { token ::Char, indexA ::Int, indexB ::Int } deriving (Show)
 
-countValid policyConstructor = length . (filter validPassword) . (map (parsePasswordAndPolicy policyConstructor))
+countValid policyConstructor = length . (filter validEntry) . (map (parse (parsePasswordAndPolicy policyConstructor) ""))
+
+validEntry :: Either ParseError PasswordAndPolicy -> Bool
+validEntry (Left _) = False
+validEntry (Right passwordAndPolicy) = validPassword passwordAndPolicy
 
 validPassword :: PasswordAndPolicy -> Bool
 validPassword (PasswordAndPolicy password (SledRentalsPolicy token tokenMin tokenMax)) = tokenMin <= tokenCount && tokenCount <= tokenMax
@@ -16,9 +22,13 @@ validPassword (PasswordAndPolicy password (TobogganCorporatePolicy token indexA 
     where tokenAtA = password !! (indexA - 1) == token
           tokenAtB = password !! (indexB - 1) == token
 
-parsePasswordAndPolicy policyConstructor line = PasswordAndPolicy { password = parsedPassword, policy = policy }
-    where policy = policyConstructor (fst parsedToken) ((read . fst) parsedParamA) ((read . fst) parsedParamB)
-          parsedPassword = (tail . tail . snd) parsedToken
-          parsedToken = ((head . tail . snd) parsedParamB, (tail . tail . snd) parsedParamB)
-          parsedParamB = (span (/= ' ') . tail . snd) parsedParamA
-          parsedParamA = span (/= '-') line
+parsePasswordAndPolicy :: (Char -> Int -> Int -> Policy) -> Parser PasswordAndPolicy
+parsePasswordAndPolicy policyConstructor = do
+    paramA <- read <$> many1 digit
+    char '-'
+    paramB <- read <$> many1 digit
+    char ' '
+    token <- anyChar
+    string ": "
+    password <- many1 anyChar
+    return (PasswordAndPolicy password (policyConstructor token paramA paramB))
