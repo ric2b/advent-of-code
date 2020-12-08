@@ -1,30 +1,24 @@
 import qualified Data.Map as M
 import qualified Data.Set as S
-
-import Data.List (find)
+import Data.List (concatMap, union, (\\))
 
 import Text.ParserCombinators.Parsec
 
-import Debug.Trace
+-- import Debug.Trace
 
 main = do
     input <- lines <$> readFile "input/day08.txt"
-    -- input <- lines <$> readFile "input/day08.example.txt"
     let instructions =  map ((\(Right result) -> result) . parse parseInstruction "") input
-    -- let instructions = map (parse parseInstruction "") input
-    -- print instructions
-    -- print $ initialMachineState
-    -- print $ executeInstruction initialMachineState (fetchInstruction instructions initialMachineState)
-    -- print $ executeInstruction initialMachineState (instructions !! 1)
-    -- print $ runProgram instructions initialMachineState
-    -- print $ findCorruptInstruction instructions
-
-    -- let fixedInstructions = replace instructions 7 ("nop", -4)
-    -- let fixedInstructions = replace instructions 518 ("nop", 42)
-    -- print $ Seq.index (Seq.update 518 ("nop", 42)  instructions) 518
-    -- print $ runProgram fixedInstructions initialMachineState
+    
     print $ accumulator $ runUntilRepeats instructions S.empty initialMachineState -- 1832
+    
+    let comesFromGraph = buildComesFromGraph $ instructions ++ [("terminate", 0)]
+    let terminatingIndexes = nodesReaching comesFromGraph [] (length instructions)
+    let possibleFixes = filter (doesFixingTerminate terminatingIndexes) (zip [0..] instructions)
+    let viableFixes = filter ((0 `elem`) . (nodesReaching comesFromGraph []) . fst) possibleFixes
+    let fixedInstructions = fixInstruction instructions (fst $ head viableFixes)
 
+    print $ accumulator $ runProgram (fixedInstructions) initialMachineState -- 662, after fixing 359
 
 type Instruction = (OpCode, Argument)
 type OpCode = String
@@ -42,6 +36,32 @@ operations = M.fromList [
         ("jmp", \s a -> s { instructionPointer = (instructionPointer s) + a - 1 }),
         ("acc", \s a -> s { accumulator = (accumulator s) + a })
     ]
+
+fixInstruction instructions index = replace instructions index (newOpCode, argument)
+    where (opCode, argument) = instructions !! index
+          newOpCode = case opCode of
+              "jmp" -> "nop"
+              "nop" -> "jmp"
+              x -> x
+
+doesFixingTerminate :: [Int] -> (Int, Instruction) -> Bool
+doesFixingTerminate terminatingIndexes (index, (opCode, argument)) = 
+    not (index `elem` terminatingIndexes) && case opCode of
+        "jmp" -> index + 1 `elem` terminatingIndexes
+        "nop" -> index + argument `elem` terminatingIndexes
+        _ -> False
+
+nodesReaching :: (Ord k) => M.Map k [k] -> [k] -> k -> [k]
+nodesReaching inverseGraph alreadyVisited node = union newVisited indirectNeighbours
+    where newDirectNeighbours = inverseGraph M.! node \\ alreadyVisited
+          newVisited = union alreadyVisited newDirectNeighbours
+          indirectNeighbours = concatMap (nodesReaching inverseGraph newVisited) newDirectNeighbours
+
+buildComesFromGraph instructions = foldl addFroms graphWithDefaults instructionsWithIndexes
+    where addFroms currentGraph (index, (opCode, argument)) = M.adjust (\comesFrom -> index:comesFrom) landsIn currentGraph
+            where landsIn = if opCode == "jmp" then index + argument else index + 1
+          graphWithDefaults = M.fromList [(i, []) | (i, _) <- instructionsWithIndexes]
+          instructionsWithIndexes = zip [0..] instructions
 
 runUntilRepeats :: [Instruction] -> S.Set Int -> MachineState -> MachineState
 -- runUntilRepeats instructions previouslyExecuted currentState | trace (show currentState ++ show (fetchInstruction instructions currentState)) False = undefined
