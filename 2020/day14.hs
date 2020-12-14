@@ -1,22 +1,16 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 import Text.ParserCombinators.Parsec
-
 import qualified Data.Map as M
-
--- import Data.List (minimumBy)
--- import Data.Ord (comparing)
--- import Data.Maybe (isJust, fromJust, catMaybes)
--- import Text.Read (readMaybe)
 import Data.Either (rights)
-
 
 main = do
     rawInput <- lines <$> readFile "input/day14.txt"
     let instructions = rights $ map (parse parseInstruction "") rawInput
-    let initialState = MachineState { memory = M.empty, mask = (take 36 (repeat Nothing)) }
+    let initialState = MachineState { memory = M.empty, mask = (take bitLength (repeat Nothing)) }
 
-    print $ sum $ M.elems $ memory $ foldl runInstruction initialState instructions -- 9615006043476
+    print $ sum $ M.elems $ memory $ foldl runInstructionV1 initialState instructions -- 9615006043476
+    print $ sum $ M.elems $ memory $ foldl runInstructionV2 initialState instructions -- 4275496544925
 
 data MachineState = MachineState {
         memory :: M.Map Int Int,
@@ -25,13 +19,29 @@ data MachineState = MachineState {
 
 data Instruction = Mask [Maybe Bool] | Update (Int, Int) deriving (Show)
 
-runInstruction :: MachineState -> Instruction -> MachineState
-runInstruction currentState@(MachineState{memory, mask}) (Mask newMask) = currentState{mask = newMask}
-runInstruction currentState@(MachineState{memory, mask}) (Update (address, value)) = currentState{memory = newMemory}
-    where newMemory = M.insert address (toDecimal $ applyMask mask (toPaddedBinary 36 value)) memory
+bitLength = 36
+
+runInstructionV2 :: MachineState -> Instruction -> MachineState
+runInstructionV2 currentState@(MachineState{memory, mask}) (Mask newMask) = currentState{mask = newMask}
+runInstructionV2 currentState@(MachineState{memory, mask}) (Update (address, value)) = currentState{memory = newMemory}
+    where newMemory = M.union updatedAddresses memory
+          updatedAddresses = M.fromList $ map (\addr -> (toDecimal addr, value)) $ applyMaskAsFloating mask (toPaddedBinary bitLength address)
+
+applyMaskAsFloating :: [Maybe Bool] -> [Int] -> [[Int]]
+applyMaskAsFloating [] [] = [[]]
+applyMaskAsFloating (m:ms) (a:as) = case m of
+    Nothing -> concat [map (0:) restOfPossibilities, map (1:) restOfPossibilities]
+    (Just True) -> map (1:) restOfPossibilities
+    (Just False) -> map (a:) restOfPossibilities
+    where restOfPossibilities = applyMaskAsFloating ms as
+
+runInstructionV1 :: MachineState -> Instruction -> MachineState
+runInstructionV1 currentState@(MachineState{memory, mask}) (Mask newMask) = currentState{mask = newMask}
+runInstructionV1 currentState@(MachineState{memory, mask}) (Update (address, value)) = currentState{memory = newMemory}
+    where newMemory = M.insert address (toDecimal $ applyMask mask (toPaddedBinary bitLength value)) memory
 
 applyMask :: [Maybe Bool] -> [Int] -> [Int]
-applyMask mask input = map applyMaskBit (zip mask input)
+applyMask mask value = map applyMaskBit (zip mask value)
     where applyMaskBit (Nothing, inputBit) = inputBit
           applyMaskBit ((Just True), _) = 1
           applyMaskBit ((Just False), _) = 0
