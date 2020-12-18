@@ -9,17 +9,23 @@ main = do
 
 parse parser = fst . head . readP_to_S parser
 
-integer :: ReadP Int 
-integer = read <$> many1 (satisfy isDigit)
-
 leftToRight :: ReadP Int
 leftToRight = expr
-    where expr = factor `chainl1` op
-          factor = (between (char '(') (char ')') expr) +++ integer
-          op = ((+) <$ (skipSpaces *> char '+' <* skipSpaces)) +++ ((*) <$ (skipSpaces *> char '*' <* skipSpaces))
+    where expr = factor `chainl1` (add +++ mult)
+          factor = (betweenParens expr) +++ integer
 
 addPrecedence :: ReadP Int
 addPrecedence = expr
-    where expr = term `chainl1` ((*) <$ (skipSpaces *> char '*' <* skipSpaces))
-          term = factor `chainl1` ((+) <$ (skipSpaces *> char '+' <* skipSpaces))
-          factor = (between (char '(') (char ')') expr) +++ integer
+    where expr = term `chainl1` mult
+          term = factor `chainl1` add
+          factor = (betweenParens expr) +++ integer
+
+betweenParens :: ReadP a -> ReadP a
+betweenParens = between (char '(') (char ')')
+
+add, mult :: ReadP (Int -> Int -> Int)
+add = ((+) <$ (skipSpaces *> char '+' <* skipSpaces))
+mult = ((*) <$ (skipSpaces *> char '*' <* skipSpaces))
+
+integer :: ReadP Int 
+integer = read <$> many1 (satisfy isDigit)
