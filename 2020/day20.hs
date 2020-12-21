@@ -1,6 +1,6 @@
 import Text.ParserCombinators.ReadP
 import Data.Char (isDigit)
-import Data.List (transpose, find)
+import Data.List (transpose, find, elemIndices, (\\))
 import Data.Maybe (isJust)
 
 import qualified Data.Map as M
@@ -8,6 +8,7 @@ import qualified Data.Set as S
 
 main = do
     rawInput <- readFile "input/day20.txt"
+    -- rawInput <- readFile "input/day20.example.txt"
     let tiles = M.fromList $ parse ((many1 parseTile) <* eof) rawInput
     -- let tileBorders = M.map gridBorders tiles
     let tileNeighbours = M.mapWithKey (\tileId _ -> matchAllEdges tiles tileId) tiles
@@ -29,14 +30,14 @@ main = do
 
     -- print $ matchDown tileNeighbours (Just (startingCorner, rotation))
 
-    print $ tileNeighbours M.! 1049
+    -- print $ tileNeighbours M.! 1049
     -- print $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 1049
-    print "-----------"
-    print $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 1049
-    print $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 1229
-    print $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 2273
-    print $ rotateNeighbours (RotateLeft 90) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 2381
-    print $ rotateNeighbours (Diagonal1) $ rotateNeighbours (RotateLeft 90) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 1321
+    -- print "-----------"
+    -- print $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 1049
+    -- print $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 1229
+    -- print $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 2273
+    -- print $ rotateNeighbours (RotateLeft 90) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 2381
+    -- print $ rotateNeighbours (Diagonal1) $ rotateNeighbours (RotateLeft 90) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 1321
     -- print $ rotateNeighbours (RotateLeft 270) $ rotatedNeighbours M.! 1787
     -- print $ rotateNeighbours (RotateLeft 270) $ rotatedNeighbours M.! 1051
     -- print $ rotateNeighbours (Diagonal2) $ rotatedNeighbours M.! 2767
@@ -45,27 +46,27 @@ main = do
     -- print $ rotateNeighbours (RotateLeft 270) $ rotatedNeighbours M.! 2111
     -- print $ rotateNeighbours (RotateLeft 0) $ rotatedNeighbours M.! 3229
 
-    mapM_ print $ transformGrid (RotateLeft 180) $ tiles M.! 1049
-    print "-----------"
+    -- mapM_ print $ transformGrid (RotateLeft 180) $ tiles M.! 1049
+    -- print "-----------"
     -- mapM_ print $ tiles M.! 1229
     -- mapM_ print $ transformGrid (RotateLeft 180) $ transformGrid (Diagonal1) $ tiles M.! 1229
     -- mapM_ print $ transformGrid (FlipVertical) $ tiles M.! 1229
     -- mapM_ print $ transformGrid (RotateLeft 180) $ transformGrid (FlipVertical) $ tiles M.! 1229
-    mapM_ print $ tiles M.! 2273
-    print "-----------"
-    mapM_ print $ transformGrid (FlipVertical) $ tiles M.! 2273
-    print "-----------"
+    -- mapM_ print $ tiles M.! 2273
+    -- print "-----------"
+    -- mapM_ print $ transformGrid (FlipVertical) $ tiles M.! 2273
+    -- print "-----------"
     -- mapM_ print $ tiles M.! 2273
     -- mapM_ print $ transformGrid (RotateLeft 180) $ tiles M.! 2273
     -- mapM_ print $ tiles M.! 2381
-    mapM_ print $ transformGrid (RotateLeft 90) $ transformGrid (FlipVertical) $ transformGrid (FlipVertical) $ transformGrid (RotateLeft 180) $ tiles M.! 2381
+    -- mapM_ print $ transformGrid (RotateLeft 90) $ transformGrid (FlipVertical) $ transformGrid (FlipVertical) $ transformGrid (RotateLeft 180) $ tiles M.! 2381
     -- mapM_ print $ transformGrid (RotateLeft 270) $ tiles M.! 2381
-    print "-----------"
-    print $ tileNeighbours M.! 2381
-    print $ rotateNeighbours (RotateLeft 90) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 2381
+    -- print "-----------"
+    -- print $ tileNeighbours M.! 2381
+    -- print $ rotateNeighbours (RotateLeft 90) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 2381
     -- mapM_ print $ tiles M.! 1321
     -- mapM_ print $ transformGrid (Diagonal1) $ tiles M.! 1321
-    mapM_ print $ transformGrid (Diagonal1) $ transformGrid (RotateLeft 90) $ transformGrid (FlipVertical) $ transformGrid (FlipVertical) $ transformGrid (RotateLeft 180) $ tiles M.! 1321
+    -- mapM_ print $ transformGrid (Diagonal1) $ transformGrid (RotateLeft 90) $ transformGrid (FlipVertical) $ transformGrid (FlipVertical) $ transformGrid (RotateLeft 180) $ tiles M.! 1321
     -- mapM_ print $ transformGrid FlipVertical $ tiles M.! 1321
     -- mapM_ print $ transformGrid (FlipVertical) $ tiles M.! 2089
     -- print "-----------"
@@ -146,26 +147,41 @@ main = do
     -- .........#   ##..##.#..   #.......#.
     -- .##......#   ....######   .###...##.
 
-    print $ matchTransformTop (tiles M.! 2381) (RotateLeft 0) (tiles M.! 1321)
-    print $ tileNeighbours M.! 2381
-    print $ rotateNeighbours (RotateLeft 90) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 2381
-    print $ rotateNeighbours (RotateLeft 270) $ tileNeighbours M.! 2381
-    print "1321"
-    mapM_ print $ tiles M.! 1321
-    print "1321 - D1 + R270"
-    mapM_ print $ transformGrid (RotateLeft 270) $ transformGrid Diagonal1 $ tiles M.! 1321
-    print "1321 - R270 + D1"
-    mapM_ print $ transformGrid Diagonal1 $ transformGrid (RotateLeft 270) $ tiles M.! 1321
+    -- print $ matchTransformTop (tiles M.! 2381) (RotateLeft 0) (tiles M.! 1321)
+    -- print $ tileNeighbours M.! 2381
+    -- print $ rotateNeighbours (RotateLeft 90) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (FlipVertical) $ rotateNeighbours (RotateLeft 180) $ tileNeighbours M.! 2381
+    -- print $ rotateNeighbours (RotateLeft 270) $ tileNeighbours M.! 2381
+    -- print "1321"
+    -- mapM_ print $ tiles M.! 1321
+    -- print "1321 - D1 + R270"
+    -- mapM_ print $ transformGrid (RotateLeft 270) $ transformGrid Diagonal1 $ tiles M.! 1321
+    -- print "1321 - R270 + D1"
+    -- mapM_ print $ transformGrid Diagonal1 $ transformGrid (RotateLeft 270) $ tiles M.! 1321
 
-    print $ matchTileRight (transformGrid (RotateLeft 180) $ tiles M.! 1049) (tiles M.! 1229)
+    -- print $ matchTileRight (transformGrid (RotateLeft 180) $ tiles M.! 1049) (tiles M.! 1229)
 
     -- print $ matchToRight tiles (Just (startingCorner, rotation))
     let leftEdge = matchToBottom tiles (Just (startingCorner, rotation))
-    let assembledPuzzle = map (matchToRight tiles . Just) leftEdge
+    let tilePlacements = map (matchToRight tiles . Just) leftEdge
 
-    mapM_ print assembledPuzzle
+    print tilePlacements
+    let assembledImage = assembleImage tiles tilePlacements
+
+    mapM_ print assembledImage
+
     print $ M.keys cornerNeighbours
 
+    let nonSpaceCount = length $ concat $ map (filter (=='#')) assembledImage
+
+    let monsterCount = sum $ map (findMonsters . snd) (allTransforms assembledImage)
+
+    -- mapM_ print $ (!! 2) $ map snd $ allTransforms assembledImage
+
+    print $ includesMonster testPattern
+
+    print $ (hashtagCount assembledImage) - monsterCount * (hashtagCount monster)
+
+    -- mapM_ print $ findMonsters $ snd $ (!!2) $ allTransforms assembledImage
 
 parse :: ReadP a -> String -> a
 parse parser = fst . head . readP_to_S parser
@@ -175,6 +191,36 @@ data Transform = RotateLeft Int | FlipHorizontal | FlipVertical | Diagonal1 | Di
 data Neighbours = Neighbours {left::MaybeNeighbour, top::MaybeNeighbour, right::MaybeNeighbour, bottom::MaybeNeighbour} deriving Show
 type MaybeNeighbour = Maybe (Int, Transform)
 type Tile = [String]
+
+hashtagCount image = length $ concat $ map (filter (=='#')) image
+
+-- findMonsters :: [String] -> Int
+findMonsters image = length $ filter includesMonster $ map (imageSlice (monsterWidth, monsterHeight) image) points
+    where imageSlice (width, height) image (x,y) = map (slice x (x+width)) $ slice y (y+height) image
+          slice begin end = drop begin . take end
+          monsterWidth = length $ head monster
+          monsterHeight = length monster
+          points = [(x, y) | x <- [0..imageWidth], y <- [0..imageHeight], x < imageWidth, y < imageHeight]
+          imageWidth = length $ head image
+          imageHeight = length image
+
+includesMonster image = (length image) == (length monster) && all null missingIndices
+    where missingIndices = map (\(m, t) -> m \\ t) $ zip monsterIndices imageIndices
+          monsterIndices = map (elemIndices '#') monster
+          imageIndices = map (elemIndices '#') image
+      
+monster = [
+        "                  # ",
+        "#    ##    ##    ###",
+        " #  #  #  #  #  #   "
+    ]
+
+testPattern = [".#...#.###...#.##.##","#.##.###.#.##.##.###","##.###.####..#.####."]
+
+assembleImage :: M.Map Int Tile -> [[(Int, Transform)]] -> [String]
+assembleImage tiles tilePlacements = concat $ map (map concat . transpose . map asTile) tilePlacements
+    where asTile (tileId, transform) = stripBorders $ transformGrid transform (tiles M.! tileId)
+          stripBorders tile = (init . tail) $ map (init . tail) tile
 
 rotateCornerToTopLeft Neighbours {left = l, top = t, right = r, bottom = b} = case (l, t, r, b) of
     (Nothing, Nothing, _, _) -> RotateLeft 0
