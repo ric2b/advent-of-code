@@ -1,10 +1,10 @@
-import qualified Data.IntMap as M
+import qualified Data.IntMap.Strict as M
 
 main = do
     let input = [9, 2, 5, 1, 7, 6, 8, 3, 4]
     let cups = M.fromList $ zip input (tail $ cycle input)
 
-    print $ concatMap show . cupsToList . fst $ iterate move (cups, head input) !! 100 -- 69852437
+    -- print $ concatMap show . cupsToList . fst $ iterate move (cups, head input) !! 100 -- 69852437
 
     let biggerInput = input ++ [(maximum input)+1 .. (10^6)]
     let biggerCups =  M.fromList $ zip biggerInput (tail $ cycle biggerInput)
