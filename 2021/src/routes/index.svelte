@@ -11,4 +11,5 @@
     <li><a href="days/02">Day 2</a></li>
     <li><a href="days/03">Day 3</a></li>
     <li><a href="days/04">Day 4</a></li>
+    <li><a href="days/05">Day 5</a></li>
 </ul>
