@@ -35,53 +35,19 @@
     }
 
     function part2(timers) {
-        // const days_left = 256;
-        const days_left = 18; // expected 5934
-        let total = 0;
+        const days_left = 256;
 
-        // const memoize = new Map();
+        const generation_counter = Array(9).fill(0);
+        for (const timer of timers) { generation_counter[timer] += 1; }
 
-        // for (const current_timer of [1]) {
-        //     const descendents = direct_descendents(current_timer, days_left);
-        //
-        //     // let family_total = 0;
-        //     // for (let i = descendents; i > 0; i--) {
-        //     //     family_total += family_total + direct_descendents(8, days_left - born_on_day(current_timer, i));
-        //     // }
-        //     let family_total = Array(descendents).fill().reduce((acc, _, i) => {
-        //         return acc + direct_descendents(8, days_left - born_on_day(current_timer, i));
-        //     }, 0)
-        //     family_total += 1 + descendents
-        //
-        //     total += family_total;
-        // }
-        // debugger
-        // return total;
-        //
-        // timers.reduce((acc, timer) => acc + family_total(timer, days_left), 0)
-        //
-        // .reduce((a,b) => a + b)
-        console.log(family_total(1, days_left)) // 7 -> 7
-        console.log(family_total(2, days_left)) // 6 -> 5
-        console.log(family_total(3, days_left)) // 5 -> 5
-        console.log(family_total(3, days_left)) // 5 -> 5
-        console.log(family_total(4, days_left)) // 5 -> 4
+        for (let i = 0; i < days_left; i++) {
+            const reproducing = generation_counter.shift();
+            generation_counter[6] += reproducing
+            generation_counter.push(reproducing)
+        }
 
-        return timers.reduce((acc, timer) => acc + family_total(timer, days_left), 0);
+        return generation_counter.reduce((a,b) => a + b);
     }
-
-    function family_total(delay, days_left) {
-        const n_descendents = direct_descendents(delay, days_left);
-        if (n_descendents === 0) return 1;
-        return 1 + Array(n_descendents).fill().map((_, i) => family_total(8, days_left - born_on_day(delay, i))).reduce((a,b) => a + b);
-    }
-
-    function direct_descendents(delay, days_left) {
-        if (delay >= days_left) return 0;
-        return 1 + Math.floor((days_left - delay) / 7);
-    }
-
-    const born_on_day = (delay, n)  => delay + n * 7 + 1;
 </script>
 
 <p>Part 1: {part1_result}</p>
