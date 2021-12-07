@@ -15,11 +15,11 @@
     }
 
     function part1(input) {
-        return 42;
+        return input;
     }
 
     function part2(input) {
-        return 42;
+        return input;
     }
 </script>
 
