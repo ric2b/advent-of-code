@@ -15,11 +15,11 @@
     }
 
     function part1(input) {
-        return input;
+        return JSON.stringify(input);
     }
 
     function part2(input) {
-        return input;
+        return JSON.stringify(input);
     }
 </script>
 
