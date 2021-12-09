@@ -14,22 +14,42 @@
 
     function part1(cave_map) {
         const risk_level = (cave_map, {x, y}) => cave_map[y][x] + 1;
+        return find_low_points(cave_map).map(p => risk_level(cave_map, p)).reduce((a, b) => a + b);
+    }
 
-        const low_points = [];
-        cave_map.forEach((xs, y) => {
-            xs.forEach((height, x) => {
-                const n_deltas = [[0, -1], [0, 1], [-1, 0], [1, 0]];
-                const n_heights = n_deltas.map(([dx, dy]) => cave_map[y+dy]?.[x+dx]).filter(h => h !== undefined);
+    function part2(cave_map) {
+        const serialize = JSON.stringify, deserialize = JSON.parse;
 
-                if (n_heights.every(n_height => height < n_height)) low_points.push({x, y});
-            });
+        const basins =  find_low_points(cave_map).map(low_point => {
+            const visited = new Set(), queue = [low_point];
+
+            for (let next_point = queue.pop(); next_point !== undefined; next_point = queue.pop()) {
+                visited.add(serialize(next_point));
+                neighbours(cave_map, next_point)
+                    .filter(p => get_height(cave_map, p) < 9 && !visited.has(serialize(p)))
+                    .map(p => queue.push(p));
+            }
+
+            return Array.from(visited).map(deserialize);
+        })
+
+        return basins.map(basin => basin.length).sort((a, b) => b - a).slice(0, 3).reduce((a, b) => a * b);
+    }
+
+    function neighbours(cave_map, {x, y}) {
+        return [[0, -1], [0, 1], [-1, 0], [1, 0]]
+            .map(([dx, dy]) => ({ x: x+dx, y: y+dy }))
+            .filter(({x, y}) => 0 <= x && x < cave_map[0].length && 0 <= y && y < cave_map.length);
+    }
+
+    function find_low_points(cave_map) {
+        return cave_map.flatMap((xs, y) => {
+            return xs.map((_h, x) => ({x: x, y: y}))
+                .filter(p => neighbours(cave_map, p).every(n_p => get_height(cave_map, p) < get_height(cave_map, n_p)))
         });
-        return low_points.map(p => risk_level(cave_map, p)).reduce((a, b) => a + b);
     }
 
-    function part2(input) {
-        return JSON.stringify(input);
-    }
+    const get_height = (cave_map, {x, y}) => cave_map[y]?.[x];
 </script>
 
 <p>Part 1: {part1_result}</p>
