@@ -10,9 +10,7 @@
         part2_result = part2(input);
     });
 
-    function parse(raw_input) {
-        return raw_input.split('\n').map(s => Number(s));
-    }
+    const parse = raw_input => raw_input.split('\n').filter(l => l !== '');
 
     function part1(input) {
         return JSON.stringify(input);

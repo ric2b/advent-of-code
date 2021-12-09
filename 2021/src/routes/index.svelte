@@ -15,4 +15,5 @@
     <li><a href="days/06">Day 6</a></li>
     <li><a href="days/07">Day 7</a></li>
     <li><a href="days/08">Day 8</a></li>
+    <li><a href="days/09">Day 9</a></li>
 </ul>
