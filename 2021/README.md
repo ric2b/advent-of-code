@@ -1,3 +1,6 @@
+###
+Hosted at [advent-of-code-2021.pages.dev](https://advent-of-code-2021.pages.dev/)
+
 # create-svelte
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte);
