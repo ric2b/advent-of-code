@@ -1,9 +1,5 @@
-<article>
-    <h2>--- Day 4: Giant Squid ---</h2>
-
-    <p class="aoc_yellow">Part 1: {part1_result}</p>
-    <p class="aoc_yellow">Part 2: {part2_result}</p>
-</article>
+<p class="aoc_yellow">Part 1: {part1_result}</p>
+<p class="aoc_yellow">Part 2: {part2_result}</p>
 
 <script>
     const board_width = 5, board_height = 5;
