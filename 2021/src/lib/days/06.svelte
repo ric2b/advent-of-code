@@ -45,5 +45,4 @@
     $: input = parse(raw_input);
 	$: part1_result = part1(input);
     $: part2_result = part2(input);
-
 </script>
