@@ -2,6 +2,8 @@
     - More code sharing between pages
     - Viz for days: 2, 4, 5, 8, 9
 -->
+<title>2021 Solutions</title>
+
 <ul>
     {#each metadata.titles as title, i}
         <li><a sveltekit:prefetch href="day/{String(i+1).padStart(2, '0')}">{title}</a></li>

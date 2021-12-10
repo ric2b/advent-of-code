@@ -40,6 +40,8 @@
     $: day_number = Number($page.params.day);
 </script>
 
+<title>Day {day_number} Solution</title>
+
 <!-- TODO: Try to not depend on external: https://github.com/sveltejs/kit/issues/552 -->
 <nav>
   <a rel="external" sveltekit:prefetch href="{day_number > 1 ? String(day_number-1).padStart(2, '0') : '/'}">[Previous Day]</a>
