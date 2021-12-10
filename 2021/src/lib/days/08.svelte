@@ -1,15 +1,11 @@
+<article>
+    <h2>--- Day 8: Seven Segment Search ---</h2>
+
+    <p class="aoc_yellow">Part 1: {part1_result}</p>
+    <p class="aoc_yellow">Part 2: {part2_result}</p>
+</article>
+
 <script>
-	import { onMount } from 'svelte';
-    import { assets } from '$app/paths';
-
-	let part1_result, part2_result;
-	onMount(async () => {
-		const raw_input = await fetch(`${assets}/inputs/day08.txt`).then(r => r.text());
-        const input = parse(raw_input);
-		part1_result = part1(input);
-        part2_result = part2(input);
-    });
-
     function parse(raw_input) {
         return raw_input.split('\n').filter(l => l !== '').map(line => {
             const [patterns, output] = line.split(' | ').map(s => s.split(' '));
@@ -208,7 +204,11 @@
         'abcdefg', // 8
         'abcdfg', // 9
     ].map(s => new Set(s.split('')));
-</script>
 
-<p>Part 1: {part1_result}</p>
-<p>Part 2: {part2_result}</p>
+    export let raw_input;
+
+    $: input = parse(raw_input);
+	$: part1_result = part1(input);
+    $: part2_result = part2(input);
+
+</script>

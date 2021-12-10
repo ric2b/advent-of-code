@@ -1,15 +1,12 @@
+<article>
+    <h2>--- Day 3: Binary Diagnostic ---</h2>
+
+    <p class="aoc_yellow">Part 1: {part1_result}</p>
+    <p class="aoc_yellow">Part 2: {part2_result}</p>
+</article>
+
+
 <script>
-	import { onMount } from 'svelte';
-    import { assets } from '$app/paths';
-
-	let part1_result, part2_result;
-	onMount(async () => {
-		const raw_input = await fetch(`${assets}/inputs/day03.txt`).then(r => r.text());
-        const input = parse(raw_input);
-		part1_result = part1(input);
-        part2_result = part2(input);
-    });
-
     function parse(raw_input) {
         return raw_input.split('\n').filter(s => s !== '').map(m => m.split('').map(d => Number(d)));
     }
@@ -45,7 +42,10 @@
         diagnostics.forEach(diagnostic => diagnostic.forEach((value, i) => one_counts[i] += value));
         return one_counts.map(one_count => one_count >= diagnostics.length / 2 ? 1 : 0);
     }
-</script>
 
-<p>Part 1: {part1_result}</p>
-<p>Part 2: {part2_result}</p>
+    export let raw_input;
+
+    $: input = parse(raw_input);
+	$: part1_result = part1(input);
+    $: part2_result = part2(input);
+</script>

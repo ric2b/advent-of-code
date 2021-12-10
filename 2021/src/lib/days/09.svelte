@@ -1,14 +1,16 @@
-<script>
-	import { onMount } from 'svelte';
-    import { assets } from '$app/paths';
+<article>
+    <h2>--- Day 9: Smoke Basin ---</h2>
 
-	let part1_result, part2_result;
-	onMount(async () => {
-		const raw_input = await fetch(`${assets}/inputs/day09.txt`).then(r => r.text());
-        const input = parse(raw_input);
-		part1_result = part1(input);
-        part2_result = part2(input);
-    });
+    <p class="aoc_yellow">Part 1: {part1_result}</p>
+    <p class="aoc_yellow">Part 2: {part2_result}</p>
+</article>
+
+<script>
+    export let raw_input;
+
+    $: input = parse(raw_input);
+	$: part1_result = part1(input);
+    $: part2_result = part2(input);
 
     const parse = raw_input => raw_input.split('\n').filter(l => l !== '').map(l => l.split('').map(Number));
 
@@ -51,6 +53,3 @@
 
     const get_height = (cave_map, {x, y}) => cave_map[y]?.[x];
 </script>
-
-<p>Part 1: {part1_result}</p>
-<p>Part 2: {part2_result}</p>
