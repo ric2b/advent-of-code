@@ -1,4 +1,5 @@
 <script context="module">
+    export const prerender = true;
     import { assets } from '$app/paths';
     export async function load({ page, fetch }) {
         const metadata_url = `${assets}/metadata.json`;

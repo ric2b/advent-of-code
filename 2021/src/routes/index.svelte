@@ -9,6 +9,8 @@
 </ul>
 
 <script context="module">
+    export const prerender = true;
+
     import { assets } from '$app/paths';
     export async function load({ fetch }) {
         const url = `${assets}/metadata.json`;
