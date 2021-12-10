@@ -34,6 +34,8 @@
 
     export let metadata;
     export let raw_input;
+    export let part1_result = '...';
+    export let part2_result = '...';
 
     $: day_number = Number($page.params.day);
 </script>
@@ -42,26 +44,29 @@
 <nav>
   <a rel="external" sveltekit:prefetch href="{day_number > 1 ? String(day_number-1).padStart(2, '0') : '/'}">[Previous Day]</a>
   <a rel="external" sveltekit:prefetch href="{day_number < 10 ? String(day_number+1).padStart(2, '0') : '/'}">[Next Day]</a>
-<!--  <a href="{day_number > 1 ? String(day_number-1).padStart(2, '0') : '/'}">[Previous Day]</a>-->
-<!--  <a href="{day_number < 10 ? String(day_number+1).padStart(2, '0') : '/'}">[Next Day]</a>-->
+<!--  <a sveltekit:prefetch href="{day_number > 1 ? String(day_number-1).padStart(2, '0') : '/'}">[Previous Day]</a>-->
+<!--  <a sveltekit:prefetch href="{day_number < 10 ? String(day_number+1).padStart(2, '0') : '/'}">[Next Day]</a>-->
 </nav>
 
 <article>
     <h2>--- {metadata.titles[day_number - 1]} ---</h2>
 
-    {#if $page.params.day === '01'} <Day01 {raw_input}/> {/if}
-    {#if $page.params.day === '02'} <Day02 {raw_input}/> {/if}
-    {#if $page.params.day === '03'} <Day03 {raw_input}/> {/if}
-    {#if $page.params.day === '04'} <Day04 {raw_input}/> {/if}
-    {#if $page.params.day === '05'} <Day05 {raw_input}/> {/if}
-    {#if $page.params.day === '06'} <Day06 {raw_input}/> {/if}
-    {#if $page.params.day === '07'} <Day07 {raw_input}/> {/if}
-    {#if $page.params.day === '08'} <Day08 {raw_input}/> {/if}
-    {#if $page.params.day === '09'} <Day09 {raw_input}/> {/if}
-    {#if $page.params.day === '10'} <Day10 {raw_input}/> {/if}
-</article>
+    <p class:aoc_yellow={part1_result !== '...'}>Part 1: {part1_result}</p>
+    <p class:aoc_yellow={part1_result !== '...'}>Part 2: {part2_result}</p>
 
-<details>
-  <summary>Change input</summary>
-  <textarea rows="20" cols="80" bind:value={raw_input}></textarea>
-</details>
+    {#if $page.params.day === '01'} <Day01 {raw_input} bind:part1_result bind:part2_result /> {/if}
+    {#if $page.params.day === '02'} <Day02 {raw_input} bind:part1_result bind:part2_result /> {/if}
+    {#if $page.params.day === '03'} <Day03 {raw_input} bind:part1_result bind:part2_result /> {/if}
+    {#if $page.params.day === '04'} <Day04 {raw_input} bind:part1_result bind:part2_result /> {/if}
+    {#if $page.params.day === '05'} <Day05 {raw_input} bind:part1_result bind:part2_result /> {/if}
+    {#if $page.params.day === '06'} <Day06 {raw_input} bind:part1_result bind:part2_result /> {/if}
+    {#if $page.params.day === '07'} <Day07 {raw_input} bind:part1_result bind:part2_result /> {/if}
+    {#if $page.params.day === '08'} <Day08 {raw_input} bind:part1_result bind:part2_result /> {/if}
+    {#if $page.params.day === '09'} <Day09 {raw_input} bind:part1_result bind:part2_result /> {/if}
+    {#if $page.params.day === '10'} <Day10 {raw_input} bind:part1_result bind:part2_result /> {/if}
+
+    <details>
+      <summary>Change input</summary>
+      <textarea rows="20" cols="80" bind:value={raw_input}></textarea>
+    </details>
+</article>

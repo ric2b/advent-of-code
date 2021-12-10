@@ -1,6 +1,3 @@
-<p class="aoc_yellow">Part 1: {part1_result}</p>
-<p class="aoc_yellow">Part 2: {part2_result}</p>
-
 <script>
     function parse(raw_input) {
         return raw_input.split('\n')
@@ -48,6 +45,8 @@
     const range = (n, m) => Array.from({length: Math.abs(m - n) + 1}, (_, i) => n + (n < m ? i : -i));
 
     export let raw_input;
+    export let part1_result;
+    export let part2_result;
 
     $: input = parse(raw_input);
 	$: part1_result = part1(input);

@@ -1,6 +1,3 @@
-<p class="aoc_yellow">Part 1: {part1_result}</p>
-<p class="aoc_yellow">Part 2: {part2_result}</p>
-
 <script>
     const parse = raw_input => raw_input.split('\n').map(s => Number(s));
 
@@ -10,6 +7,8 @@
     const window = (depths, i) => depths.slice(i, i + 3).reduce((a, b) => a + b, 0);
 
     export let raw_input;
+    export let part1_result;
+    export let part2_result;
 
     $: input = parse(raw_input);
 	$: part1_result = part1(input);

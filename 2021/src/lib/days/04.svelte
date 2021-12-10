@@ -1,6 +1,3 @@
-<p class="aoc_yellow">Part 1: {part1_result}</p>
-<p class="aoc_yellow">Part 2: {part2_result}</p>
-
 <script>
     const board_width = 5, board_height = 5;
 
@@ -48,6 +45,8 @@
     const transpose = m => m[0].map((x,i) => m.map(x => x[i]));
 
     export let raw_input;
+    export let part1_result;
+    export let part2_result;
 
     $: input = parse(raw_input);
 	$: part1_result = part1(input);

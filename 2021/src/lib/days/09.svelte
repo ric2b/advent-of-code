@@ -1,13 +1,4 @@
-<p class="aoc_yellow">Part 1: {part1_result}</p>
-<p class="aoc_yellow">Part 2: {part2_result}</p>
-
 <script>
-    export let raw_input;
-
-    $: input = parse(raw_input);
-	$: part1_result = part1(input);
-    $: part2_result = part2(input);
-
     const parse = raw_input => raw_input.split('\n').filter(l => l !== '').map(l => l.split('').map(Number));
 
     function part1(cave_map) {
@@ -48,4 +39,12 @@
     }
 
     const get_height = (cave_map, {x, y}) => cave_map[y]?.[x];
+
+    export let raw_input;
+    export let part1_result;
+    export let part2_result;
+
+    $: input = parse(raw_input);
+	$: part1_result = part1(input);
+    $: part2_result = part2(input);
 </script>
