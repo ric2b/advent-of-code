@@ -25,7 +25,6 @@
                 flash_count += 1;
                 energy_levels[y][x] = -1;
                 neighbours(energy_levels, {x, y}).forEach(p => tick(p));
-                // energy_levels[y][x] = 0;
             }
         }
 
@@ -47,8 +46,37 @@
         return flash_count;
     }
 
-    function part2(input) {
-        return JSON.stringify(input);
+    function part2(energy_levels) {
+        const tick = ({x, y}) => {
+            if (energy_levels[y][x] < 0) return; // already flashed
+
+            energy_levels[y][x] += 1;
+
+            if (energy_levels[y][x] > 9) {
+                energy_levels[y][x] = -1;
+                neighbours(energy_levels, {x, y}).forEach(p => tick(p));
+            }
+        }
+
+        let step = 0, all_flashed = false;
+        for (step = 0; !all_flashed; step++) {
+            for (const [y, line] of energy_levels.entries()) {
+                for (const [x, level] of line.entries()) {
+                    tick({x, y});
+                }
+            }
+
+            all_flashed = true;
+            for (const [y, line] of energy_levels.entries()) {
+                for (const [x, level] of line.entries()) {
+                    if (energy_levels[y][x] < 0) {
+                        energy_levels[y][x] = 0;
+                    } else { all_flashed = false; }
+                }
+            }
+        }
+
+        return step; // 303 too low, right answer for someone else
     }
 
     function neighbours(grid, {x, y}) {
@@ -62,8 +90,10 @@
     export let part2_result;
 
     $: input = parse(raw_input);
-    $: part1_result = part1(input);
-    $: part2_result = part2(input);
+    $: part1_input = JSON.parse(JSON.stringify(input));
+    $: part2_input = JSON.parse(JSON.stringify(input));
+    $: part1_result = part1(part1_input);
+    $: part2_result = part2(part2_input);
 </script>
 
 <style>
@@ -80,7 +110,7 @@
         /*margin-right: 5px;*/
         margin: 3px;
     }
-
+/*
     .grid .cell.energy_-1 { background: white; }
     .grid .cell.energy_0 { background-color: #000000; }
     .grid .cell.energy_1 { background-color: #111111; }
@@ -91,5 +121,5 @@
     .grid .cell.energy_6 { background-color: #666666; }
     .grid .cell.energy_7 { background-color: #777777; }
     .grid .cell.energy_8 { background-color: #888888; }
-    .grid .cell { background-color: #999999; }
+    .grid .cell { background-color: #999999; }*/
 </style>
