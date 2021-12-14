@@ -6,7 +6,10 @@
         const responses = await Promise.all([fetch(metadata_url), fetch(input_url)]);
 
         for (const res of responses) {
-          if (!res.ok) return { status: res.status, error: new Error(`Could not load ${input_url}`) };
+          if (!res.ok) {
+            debugger;
+            return { status: res.status, error: new Error(`Could not load ${input_url}`) };
+          } 
         }
 
         const [metadata_res, input_res] = responses;
