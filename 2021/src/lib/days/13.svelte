@@ -1,3 +1,5 @@
+<p>{part2_result}</p>
+
 <script>
     function parse(raw_input) {
         const lines = raw_input.split('\n').filter(l => l !== '');
@@ -12,63 +14,44 @@
     function part1({dots, folds}) {
         const fold = folds[0];
         const max_dim = { x: Math.max(...dots.map(({x, y}) => x)), y: Math.max(...dots.map(({x, y}) => y)) };
-        // const max_height = Math.max(...dots.map(({x, y}) => y));
-        // const dots_index = new Set(dots.map(JSON.stringify));
 
         const below_fold = dots.filter(p => p[fold['direction']] < fold['value']);
         const above_fold = dots.filter(p => p[fold['direction']] > fold['value']);
-        // debugger;
+
         const transformed_above_fold = above_fold.map(({x, y})=> {
             const new_p = {x, y};
             new_p[fold['direction']] = Math.abs(new_p[fold['direction']] - fold['value'] - (max_dim[fold['direction']] - fold['value'])); 
             return new_p;
         });
-        
-        //   01234567890   
-        // 0 #.##..#..#.
-        // 1 #...#......
-        // 2 ......#...#
-        // 3 #...#......
-        // 4 .#.#..#.###
-        // 5 ...........
-        // 6 ...........
 
-        //   01234567890   
-        // 0 #.##..#..#.
-        // 1 #...#......
-        // 2 ......#...#
-        // 3 #...#......
-        // 4 .#.#..#.###
-        // 5 ...........
-        // 6 ...........
-
-        [
-            {"x":0,"y":3},
-            {"x":10,"y":4},
-            {"x":6,"y":0},
-            {"x":4,"y":1},
-            {"x":3,"y":4},
-            {"x":3,"y":0},
-            {"x":8,"y":4},
-            {"x":9,"y":0},
-            {"x":6,"y":4},
-            {"x":0,"y":0},
-            {"x":9,"y":4},
-            {"x":4,"y":3},
-            {"x":6,"y":2},
-            {"x":0,"y":1},
-            {"x":10,"y":2},
-            {"x":1,"y":4},
-            {"x":2,"y":0},
-            {"x":8,"y":4}
-        ]
         const new_dots = below_fold.concat(transformed_above_fold);
 
         return [...new Set(new_dots.map(JSON.stringify))].length;
     }
 
-    function part2(input) {
-        return JSON.stringify(input);
+    function part2({dots, folds}) {
+        let current_dots = dots;
+
+        folds.forEach(fold => {
+            const max_dim = { x: Math.max(...current_dots.map(({x, y}) => x)), y: Math.max(...current_dots.map(({x, y}) => y)) };
+
+            const below_fold = current_dots.filter(p => p[fold['direction']] < fold['value']);
+            const above_fold = current_dots.filter(p => p[fold['direction']] > fold['value']);
+
+            const transformed_above_fold = above_fold.map(({x, y})=> {
+                const new_p = {x, y};
+                new_p[fold['direction']] = fold['value'] - Math.abs(new_p[fold['direction']] - fold['value']); 
+                return new_p;
+            });
+
+            current_dots = below_fold.concat(transformed_above_fold);
+        });
+
+        const max_x = Math.max(...current_dots.map(({x, y}) => x)), max_y = Math.max(...current_dots.map(({x, y}) => y));
+        const paper = Array.from({ length: max_y + 1 }, () => Array.from({ length: max_x + 1 }, () => '.'));
+        current_dots.forEach(({x, y}) => paper[y][x] = '#');
+
+        return paper.map(l => l.join('')).join('\n');
     }
 
     export let raw_input;
