@@ -34,7 +34,7 @@
             visited.add(u);
             current_path.push(u);
 
-            if (u == end) {
+            if (u === end) {
                 paths.push(current_path.slice());
                 visited.delete(u);
                 current_path.pop();
@@ -52,8 +52,45 @@
         return paths.length;
     }
 
-    function part2(input) {
-        return JSON.stringify(input);
+    function part2(edges) {
+        //return 43;
+        const graph = edges.flat().reduce((g, u) => g.set(u, new Set()), new Map());
+        edges.reduce((g, [u, v]) => { g.get(u).add(v); g.get(v).add(u); return g; }, graph);
+
+        const visited = new Set(), stack = ['start'], current_path = [], paths = [];
+        let double_visit = null;
+
+        const dfs = (u, end) => {
+            if (visited.has(u) && u !== u.toUpperCase()) {
+                if (u === 'start' || double_visit !== null) return;
+                
+                double_visit = u;
+            } 
+
+            visited.add(u);
+            current_path.push(u);
+
+            if (u === end) {
+                paths.push(current_path.slice());
+                visited.delete(u);
+                current_path.pop();
+                return;
+            }
+            
+            graph.get(u).forEach(v => dfs(v, end));
+            current_path.pop();
+            
+            if (double_visit === u) {
+                double_visit = null;  
+            } else {
+                visited.delete(u);
+            }
+        }
+
+        dfs('start', 'end')
+
+        console.log(paths);
+        return paths.length;
     }
 
     export let raw_input;
