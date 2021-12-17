@@ -48,7 +48,6 @@
 
         dfs('start', 'end')
 
-        console.log(paths);
         return paths.length;
     }
 
@@ -88,8 +87,6 @@
         }
 
         dfs('start', 'end')
-
-        console.log(paths);
         return paths.length;
     }
 
