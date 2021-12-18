@@ -40,7 +40,7 @@
 <!-- TODO: Try to not depend on external: https://github.com/sveltejs/kit/issues/552 -->
 <nav>
   <a rel="external" sveltekit:prefetch href="{day_number > 1 ? String(day_number-1).padStart(2, '0') : '/'}">[Previous Day]</a>
-  <a rel="external" sveltekit:prefetch href="{day_number < 10 ? String(day_number+1).padStart(2, '0') : '/'}">[Next Day]</a>
+  <a rel="external" sveltekit:prefetch href="{day_number < metadata.titles.length ? String(day_number+1).padStart(2, '0') : '/'}">[Next Day]</a>
   <!-- <a sveltekit:prefetch href="{day_number > 1 ? String(day_number-1).padStart(2, '0') : '/'}">[Previous Day]</a> -->
   <!-- <a sveltekit:prefetch href="{day_number < 10 ? String(day_number+1).padStart(2, '0') : '/'}">[Next Day]</a> -->
 </nav>
