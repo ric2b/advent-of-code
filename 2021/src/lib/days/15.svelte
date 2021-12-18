@@ -1,4 +1,6 @@
 <script>
+    import PriorityQueue from '$lib/prority-queue';
+    // const PriorityQueue = require('$lib/prority-queue.js');
     const parse = raw_input => raw_input.split('\n').filter(l => l !== '').map(l => l.split('').map(Number));
 
     // Implement Djikstra
@@ -10,43 +12,54 @@
                 .filter(({x, y}) => 0 <= x && x < width && 0 <= y && y < height);
         }
 
-        const costs = new Map(), unvisited = new Set();
+        const costs = new Map(), pq = new PriorityQueue((a, b) => costs.get(a) < costs.get(b));
         risk_map.forEach((line, i) => {
             line.forEach((_, j) => {
                 const s_p = serialize({x: j, y: i});
-                unvisited.add(s_p);
                 costs.set(s_p, Infinity);
             });
         });
         
-        const starting_node = {x: 0, y: 0}, goal = {x: width-1, y: height-1}, s_goal = serialize(goal);
-        costs.set(serialize(starting_node), 0);
+        const starting_node = {x: 0, y: 0}, goal = {x: width-1, y: height-1};
+        const s_starting_node = serialize(starting_node), s_goal = serialize(goal);
+        costs.set(s_starting_node, 0);
+        pq.push(s_starting_node);
 
-        while ([...unvisited].some(s_node => costs.get(s_node) < Infinity)) {
-            const [s_current_node, current_cost] = [...unvisited].reduce(([min_s_node, min_cost], s_node) => {
-                const node_cost = costs.get(s_node);
-                return node_cost < min_cost ? [s_node, node_cost] : [min_s_node, min_cost];
-            }, [null, Infinity]);
-            
+        while (!pq.isEmpty()) {
+            const s_current_node = pq.pop(), current_cost = costs.get(s_current_node);
+
             if (s_current_node === s_goal) break;
 
             neighbours(deserialize(s_current_node))
-                .filter(p => unvisited.has(serialize(p)))
                 .forEach(p => {
                     const {x, y} = p, s_p = serialize(p);
                     const new_cost = current_cost + risk_map[y][x];
 
-                    if (new_cost < costs.get(s_p)) costs.set(s_p, new_cost);
+                    if (new_cost < costs.get(s_p)) {
+                        costs.set(s_p, new_cost);
+                        pq.push(s_p);
+                    }
                 });
-            unvisited.delete(s_current_node);
         }
 
         return costs.get(s_goal);
     }
 
     function part2(input) {
-        return 42;
-        return JSON.stringify(input);
+        const repeats = 5, height = input.length, width = input[0].length;
+        const bigger_input = [];
+
+        for (let m = 0; m < repeats; m++) {
+            for (let i = 0; i < height; i++) {
+                const line = [];
+                for (let n = 0; n < repeats; n++) {
+                    line.push(...input[i].map(v => (v + m + n) % 10 + Math.floor((v + m + n) / 10)));
+                }
+                bigger_input.push(line);
+            }
+        }
+        
+        return part1(bigger_input);
     }
 
 

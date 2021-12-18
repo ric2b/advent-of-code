@@ -48,8 +48,8 @@
         });
 
         const max_x = Math.max(...current_dots.map(({x, y}) => x)), max_y = Math.max(...current_dots.map(({x, y}) => y));
-        const paper = Array.from({ length: max_y + 1 }, () => Array.from({ length: max_x + 1 }, () => '.'));
-        current_dots.forEach(({x, y}) => paper[y][x] = '#');
+        const paper = Array.from({ length: max_y + 1 }, () => Array.from({ length: max_x + 1 }, () => '⬛'));
+        current_dots.forEach(({x, y}) => paper[y][x] = '⬜');
 
         return paper.map(l => l.join('')).join('\n');
     }
