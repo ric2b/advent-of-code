@@ -10,7 +10,9 @@
     }
 
     function part2(input) {
-        return JSON.stringify(input);
+        const bin = [...input].map(c => hex2bin(c)).join('');
+        const { result, rest } = parse_packet(bin)
+        return result;
     }
 
     const hex2bin = hex => (parseInt(hex, 16).toString(2)).padStart(4, '0');
@@ -35,57 +37,61 @@
         return { result, rest };
     }
 
-    function operator(bin) {
-        let result, rest;
-        const content = bin.slice(1);
+    function operator(operation){
+        return bin => {
+            let result, rest;
+            const content = bin.slice(1);
+            const results = [];
 
-        if (bin[0] === '0') {
-            ({result, rest} = integer(content, 15));
-            console.log(`total length: ${result}`);
-            for (let total_length = result; total_length > content.length - 15 - rest.length; ) {
-                ({result, rest} = parse_packet(rest));
+            if (bin[0] === '0') {
+                ({result, rest} = integer(content, 15));
+                console.log(`total length: ${result}`);
+                for (let total_length = result; total_length > content.length - 15 - rest.length;) {
+                    ({result, rest} = parse_packet(rest));
+                    results.push(result);
+                }
+            } else {
+                ({result, rest} = integer(content, 11));
+                console.log(`total packets: ${result}`);
+                for (let sub_packet_count = result; sub_packet_count > 0; sub_packet_count--) {
+                    ({result, rest} = parse_packet(rest));
+                    results.push(result);
+                }
             }
-        } else {
-            ({result, rest} = integer(content, 11));
-            console.log(`total packets: ${result}`);
-            for (let sub_packet_count = result; sub_packet_count > 0; sub_packet_count--) {
-                ({result, rest} = parse_packet(rest));
-            }
+
+            return {result: results.reduce(operation), rest};
         }
-
-        return { result, rest };
     }
 
     function parse_packet(bin) {
         const version = parseInt(bin.slice(0, 3), 2);
         const type_id = parseInt(bin.slice(3, 6), 2);
         const raw_content = bin.slice(6);
-        // debugger
-        versions.push(version);
 
-        console.log(bin);
+        versions.push(version);
         console.log({version, type_id, raw_content});
+
         return packet_parsers[type_id](raw_content);
     }
 
     const packet_parsers = [
-        operator,
-        operator,
-        operator,
-        operator,
+        operator((a, b) => a + b),
+        operator((a, b) => a * b),
+        operator((a, b) => Math.min(a, b)),
+        operator((a, b) => Math.max(a, b)),
         literal,
-        operator,
-        operator,
-        operator,
-        operator,
-        operator,
-        operator,
-        operator,
-        operator,
-        operator,
-        operator,
-        operator,
-        operator,
+        operator((a, b) => a > b ? 1 : 0),
+        operator((a, b) => a < b ? 1 : 0),
+        operator((a, b) => a === b ? 1 : 0),
+        operator((a, b) => a + b),
+        operator((a, b) => a + b),
+        operator((a, b) => a + b),
+        operator((a, b) => a + b),
+        operator((a, b) => a + b),
+        operator((a, b) => a + b),
+        operator((a, b) => a + b),
+        operator((a, b) => a + b),
+        operator((a, b) => a + b),
     ];
 
     export let raw_input;
