@@ -9,7 +9,17 @@
     }
 
     function part2(numbers) {
-        return JSON.stringify(numbers);
+        let max_magnitude = -Infinity;
+
+        for (let i = 0; i < numbers.length; i++) {
+            for (let j = i; j < numbers.length; j++) {
+                const a = numbers[i], b = numbers[j];
+                max_magnitude = Math.max(max_magnitude, sf_magnitude(sf_add(a, b)));
+                max_magnitude = Math.max(max_magnitude, sf_magnitude(sf_add(b, a)));
+            }
+        }
+
+        return max_magnitude;
     }
 
     function sf_add(a, b) {
