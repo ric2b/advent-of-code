@@ -4,9 +4,27 @@
         return scanner_reports.map(s => s.split('\n').slice(1).filter(l => l !== '').map(b => b.split(',').map(Number)));
     }
 
+    function part1(all_reports) {
+        const { beacons } = locate_scanners_and_beacons(all_reports);
+        return new Set(beacons.map(JSON.stringify)).size;
+    }
+
+    function part2(all_reports) {
+        const { scanners } = locate_scanners_and_beacons(all_reports);
+
+        let current_max = -Infinity;
+        for (let i = 0; i < scanners.length; i++) {
+            for (let j = i; j < scanners.length; j++) {
+                current_max = Math.max(current_max, manhattan_distance(scanners[i], scanners[j]));
+            }
+        }
+
+        return current_max;
+    }
+
     // https://www.reddit.com/r/adventofcode/comments/rjpf7f/2021_day_19_solutions/hp8pkmb/
     // https://www.reddit.com/r/adventofcode/comments/rjpf7f/2021_day_19_solutions/hp8qck3/
-    function part1(all_reports) {
+    function locate_scanners_and_beacons(all_reports) {
         const beacons = Array.from(all_reports)[0];
         const remaining = Array.from(all_reports).slice(1);
         const scanners = new Set([JSON.stringify([0,0,0])]);
@@ -29,7 +47,7 @@
                     if (c_max >= 12) {
                         console.log(`found ${v_max}`);
                         const target = JSON.parse(v_max);
-                        scanners.add(target);
+                        scanners.add(JSON.stringify(target));
                         beacons.push(...remaining[i].map(b => translation(target, transformation(o, b))));
                         remaining.splice(i, 1);
                         break;
@@ -38,15 +56,11 @@
             }
         }
 
-        return JSON.stringify(new Set(beacons.map(JSON.stringify)).size);
+        return { scanners: [...scanners].map(JSON.parse), beacons };
     }
 
-    function part2(input) {
-        return JSON.stringify(input);
-    }
-
-    function distance([x, y, z]) {
-        return Math.sqrt(x**2 + y**2 + z**2);
+    function manhattan_distance([x1, y1, z1], [x2, y2, z2]) {
+        return Math.abs(x1 - x2) + Math.abs(y1 - y2) + Math.abs(z1 - z2);
     }
 
     const orientations = [
@@ -87,12 +101,6 @@
 
     function transformation([[a, b, c],[d, e, f], [g, h, i]], [x, y, z]) {
         return [a*x + b*y + c*z, d*x + e*y + f*z, g*x + h*y + i*z];
-    }
-
-    function transformations([x, y, z]) {
-        return orientations.map(([[a, b, c],[d, e, f], [g, h, i]]) => {
-            return [a*x + b*y + c*z, d*x + e*y + f*z, g*x + h*y + i*z];
-        })
     }
 
     export let raw_input;
