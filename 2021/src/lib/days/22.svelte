@@ -26,8 +26,26 @@
         return enabled_cubes.filter(on => on === true).length;
     }
 
-    function part2(input) {
-        return 42;
+    function part2(steps) {
+        let areas = new Map();
+
+        for (const { action, cuboid } of steps) {
+            const updated_areas = new Map();
+            const s_cuboid = JSON.stringify(cuboid);
+
+            if (action === 'on') updated_areas.set(s_cuboid, (updated_areas.get(s_cuboid) || 0) + 1);
+
+            for (const [s_area, value] of areas) {
+                const area = JSON.parse(s_area);
+                if (intersects(cuboid, area)) {
+                    const s_intersection_area = JSON.stringify(get_intersection_area(cuboid, area));
+                    updated_areas.set(s_intersection_area, (updated_areas.get(s_intersection_area) || 0) - value);
+                }
+            }
+
+            for (const [s_area, value] of updated_areas) { areas.set(s_area, (areas.get(s_area) || 0) + value); }
+        }
+        return [...areas].map(([s_area, value]) => get_area(JSON.parse(s_area)) * value).reduce((a, b) => a + b);
     }
 
     function cubes({ min_x, max_x, min_y, max_y, min_z, max_z }) {
@@ -40,6 +58,27 @@
             }
         }
         return points;
+    }
+
+    function intersects(a, b) {
+        return a.min_x <= b.max_x && a.max_x >= b.min_x
+            && a.min_y <= b.max_y && a.max_y >= b.min_y
+            && a.min_z <= b.max_z && a.max_z >= b.min_z;
+    }
+
+    function get_intersection_area(a, b) {
+        return {
+            min_x: Math.max(a.min_x, b.min_x),
+            max_x: Math.min(a.max_x, b.max_x),
+            min_y: Math.max(a.min_y, b.min_y),
+            max_y: Math.min(a.max_y, b.max_y),
+            min_z: Math.max(a.min_z, b.min_z),
+            max_z: Math.min(a.max_z, b.max_z),
+        };
+    }
+
+    function get_area({ min_x, max_x, min_y, max_y, min_z, max_z }) {
+        return (1 + max_x - min_x) * (1 + max_y - min_y) * (1 + max_z - min_z);
     }
 
     export let raw_input;
