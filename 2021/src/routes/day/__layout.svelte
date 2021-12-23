@@ -27,12 +27,19 @@
 
 <script>
     import { page } from '$app/stores';
-    const day = Number($page.path.split('/').slice(-1)[0]);
+    $: day = Number($page.path.split('/').slice(-1)[0]);
     export let metadata;
     export let raw_input;
     export let part1_result;
     export let part2_result;
 </script>
+
+<title>Day {day} Solution</title>
+
+<nav>
+     <a sveltekit:prefetch href="{day > 1 ? String(day-1).padStart(2, '0') : '/'}">[Previous Day]</a>
+     <a sveltekit:prefetch href="{day < metadata.titles.length ? String(day+1).padStart(2, '0') : '/'}">[Next Day]</a>
+</nav>
 
 <article>
     <h2>--- {metadata.titles[day - 1]} ---</h2>

@@ -1,3 +1,7 @@
+<script context="module">
+    export async function load({ stuff }) { return { props: stuff }; }
+</script>
+
 <script>
     const parse = raw_input => raw_input.split('\n').filter(l => l !== '').map(l => l.split('').map(Number));
 
@@ -41,10 +45,10 @@
     const get_height = (cave_map, {x, y}) => cave_map[y]?.[x];
 
     export let raw_input;
-    export let part1_result;
-    export let part2_result;
+    export let set_part1_result;
+    export let set_part2_result;
 
-    $: input = parse(raw_input);
-    $: part1_result = part1(input);
-    $: part2_result = part2(input);
+    $: input = parse($raw_input);
+    $: set_part1_result(part1(input));
+    $: set_part2_result(part2(input));
 </script>

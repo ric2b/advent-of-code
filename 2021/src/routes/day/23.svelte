@@ -1,10 +1,14 @@
 {#if JSON.stringify(input) === JSON.stringify(expected_input)}
     (Wetware solution goes brrrrr)
-    <img alt="I know that one" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmemegenerator.net%2Fimg%2Fimages%2F16821874.jpg&f=1&nofb=1">
+    <img alt="I know that one" src="/roll_safe.jpg">
 {:else}
     (Don't feel like implementing another BFS or Djikstra)
-    <img alt="Oops" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fih0.redbubble.net%2Fimage.256775008.1869%2Fpp%2C550x550.u8.jpg&f=1&nofb=1">
+    <img alt="Oops" src="/guess_ill_die.jpg">
 {/if}
+
+<script context="module">
+    export async function load({ stuff }) { return { props: stuff }; }
+</script>
 
 <script>
     const expected_input = [['D', 'D', 'C', 'C'], ['B', 'A', 'B', 'A']];
@@ -30,12 +34,12 @@
     }
 
     export let raw_input;
-    export let part1_result;
-    export let part2_result;
+    export let set_part1_result;
+    export let set_part2_result;
 
-    $: input = parse(raw_input);
-    $: part1_result = part1(input);
-    $: part2_result = part2(input);
+    $: input = parse($raw_input);
+    $: set_part1_result(part1(input));
+    $: set_part2_result(part2(input));
 </script>
 
 <style>

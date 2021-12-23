@@ -9,6 +9,10 @@
     {/each}
 </div>
 
+<script context="module">
+    export async function load({ stuff }) { return { props: stuff }; }
+</script>
+
 <script>
     const parse = raw_input => raw_input.split('\n').filter(l => l !== '').map(l => l.split('').map(Number));
 
@@ -86,14 +90,12 @@
     }
 
     export let raw_input;
-    export let part1_result;
-    export let part2_result;
+    export let set_part1_result;
+    export let set_part2_result;
 
-    $: input = parse(raw_input);
-    $: part1_input = JSON.parse(JSON.stringify(input));
-    $: part2_input = JSON.parse(JSON.stringify(input));
-    $: part1_result = part1(part1_input);
-    $: part2_result = part2(part2_input);
+    $: input = parse($raw_input);
+    $: set_part1_result(part1(JSON.parse(JSON.stringify(input))));
+    $: set_part2_result(part2(JSON.parse(JSON.stringify(input))));
 </script>
 
 <style>

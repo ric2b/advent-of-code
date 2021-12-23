@@ -1,3 +1,7 @@
+<script context="module">
+    export async function load({ stuff }) { return { props: stuff }; }
+</script>
+
 <script>
     const board_width = 5, board_height = 5;
 
@@ -45,10 +49,10 @@
     const transpose = m => m[0].map((x,i) => m.map(x => x[i]));
 
     export let raw_input;
-    export let part1_result;
-    export let part2_result;
+    export let set_part1_result;
+    export let set_part2_result;
 
-    $: input = parse(raw_input);
-    $: part1_result = part1(input);
-    $: part2_result = part2(input);
+    $: input = parse($raw_input);
+    $: set_part1_result(part1(input));
+    $: set_part2_result(part2(input));
 </script>

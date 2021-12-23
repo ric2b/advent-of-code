@@ -1,3 +1,7 @@
+<script context="module">
+    export async function load({ stuff }) { return { props: stuff }; }
+</script>
+
 <script>
     const parse = raw_input => raw_input.split('\n').filter(l => l !== '')[0];
 
@@ -33,7 +37,7 @@
 
         const result = parseInt(chunks.join(''), 2);
 
-        console.log(`literal value: ${result}`);
+        // console.log(`literal value: ${result}`);
         return { result, rest };
     }
 
@@ -45,14 +49,14 @@
 
             if (bin[0] === '0') {
                 ({result, rest} = integer(content, 15));
-                console.log(`total length: ${result}`);
+                // console.log(`total length: ${result}`);
                 for (let total_length = result; total_length > content.length - 15 - rest.length;) {
                     ({result, rest} = parse_packet(rest));
                     results.push(result);
                 }
             } else {
                 ({result, rest} = integer(content, 11));
-                console.log(`total packets: ${result}`);
+                // console.log(`total packets: ${result}`);
                 for (let sub_packet_count = result; sub_packet_count > 0; sub_packet_count--) {
                     ({result, rest} = parse_packet(rest));
                     results.push(result);
@@ -69,7 +73,7 @@
         const raw_content = bin.slice(6);
 
         versions.push(version);
-        console.log({version, type_id, raw_content});
+        // console.log({version, type_id, raw_content});
 
         return packet_parsers[type_id](raw_content);
     }
@@ -95,10 +99,10 @@
     ];
 
     export let raw_input;
-    export let part1_result;
-    export let part2_result;
+    export let set_part1_result;
+    export let set_part2_result;
 
-    $: input = parse(raw_input);
-    $: part1_result = part1(input);
-    $: part2_result = part2(input);
+    $: input = parse($raw_input);
+    $: set_part1_result(part1(input));
+    $: set_part2_result(part2(input));
 </script>
