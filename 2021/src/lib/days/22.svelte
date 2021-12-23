@@ -10,19 +10,20 @@
     }
 
     function part1(steps) {
-        const enabled_cubes = new Set();
+        const enabled_cubes = new Array(100*100*100).fill(false);
 
-        steps.forEach(({ action, cuboid }) => {
-            cubes(cuboid).filter(cube => cube.every(dimension => -50 <= dimension && dimension <= 50)).forEach(cube => {
-                if (action === 'on') {
-                    enabled_cubes.add(JSON.stringify(cube));
-                } else {
-                    enabled_cubes.delete(JSON.stringify(cube));
-                }
+        steps.forEach(({ action, cuboid }, i) => {
+            console.log(`step ${i}`);
+
+            const { min_x, max_x, min_y, max_y, min_z, max_z } = cuboid;
+            if([min_x, max_x, min_y, max_y, min_z, max_z].some(d => d < -50 || d > 50)) return;
+
+            cubes(cuboid).forEach(([x, y, z]) => {
+                enabled_cubes[(x + 50) + (y + 50) * 100 + (z + 50) * 100 * 100] = action === 'on';
             });
         });
 
-        return enabled_cubes.size;
+        return enabled_cubes.filter(on => on === true).length;
     }
 
     function part2(input) {
