@@ -1,9 +1,9 @@
 {#if JSON.stringify(input) === JSON.stringify(expected_input)}
     (Wetware solution goes brrrrr)
-    <img alt="I know that one" src="/roll_safe.jpg">
+    <img height="450px" alt="I know that one" src="/roll_safe.jpg">
 {:else}
     (Don't feel like implementing another BFS or Djikstra)
-    <img alt="Oops" src="/guess_ill_die.jpg">
+    <img height="450px" alt="Oops" src="/guess_ill_die.jpg">
 {/if}
 
 <script context="module">
