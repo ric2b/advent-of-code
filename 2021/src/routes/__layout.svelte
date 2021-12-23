@@ -9,7 +9,8 @@
 <script>
     import { page } from '$app/stores';
     const repo_link = 'https://github.com/ric2b/advent-of-code';
-    $: source_link = $page.params.day ?
-        `${repo_link}/blob/master/2021/src/lib/days/${String(Number($page.params.day)).padStart(2, '0')}.svelte`
+    $: day = Number($page.path.split('/').slice(-1)[0]);
+    $: source_link = !isNaN(day) ?
+        `${repo_link}/blob/master/2021/src/routes/day/${day}.svelte`
         : `${repo_link}/tree/master/2021`;
 </script>
