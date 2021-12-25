@@ -9,14 +9,99 @@
         return raw_matches.map(({op, dest, src, lit}) => ({ op, a: dest, b: src || Number(lit) }));
     }
 
-    // The ALU is a four-dimensional processing unit: it has integer variables w, x, y, and z. These variables all start with the value 0. The ALU also supports six instructions:
+    // [A]
+    // add x 12
+    // add y 9
+    // stack =>  [A] + 9
     //
-    //     inp a - Read an input value and write it to variable a.
-    //     add a b - Add the value of a to the value of b, then store the result in variable a.
-    //     mul a b - Multiply the value of a by the value of b, then store the result in variable a.
-    //     div a b - Divide the value of a by the value of b, truncate the result to an integer, then store the result in variable a. (Here, "truncate" means to round the value toward zero.)
-    // mod a b - Divide the value of a by the value of b, then store the remainder in variable a. (This is also called the modulo operation.)
-    // eql a b - If the value of a and b are equal, then store the value 1 in variable a. Otherwise, store the value 0 in variable a.
+    //     [B]
+    // add x 12
+    // add y 4
+    // stack => [A] + 9, [B] + 4
+    //
+    //     [C]
+    // add x 12
+    // add y 2
+    // stack => [A] + 9, [B] + 4, [C] + 2
+    //
+    //     [D]
+    // add x -9
+    // add y 5
+    // stack => [A] + 9, [B] + 4
+    // stop if [C] - 7 != [D]
+    //
+    //     [E]
+    //     add x -9
+    // add y 1
+    // stack => [A] + 9
+    // stop if [B] - 5 != [E]
+    //
+    //     [F]
+    //     add x 14
+    // add y 6
+    // stack => [A] + 9, [F] + 6
+    //
+    //     [G]
+    // add x 14
+    // add y 11
+    // stack => [A] + 9, [F] + 6, [G] + 11
+    //
+    //     [H]
+    // add x -10
+    // add y 15
+    // stack => [A] + 9, [F] + 6
+    // stop if [G] + 1 != [H]
+    //
+    //     [I]
+    //     add x 15
+    // add y 7
+    // stack => [A] + 9, [F] + 6, [I] + 7
+    //
+    //     [J]
+    // add x -2
+    // add y 12
+    // stack => [A] + 9, [F] + 6
+    // stop if [I] + 5 != [J]
+    //
+    //     [K]
+    //     add x 11
+    // add y 15
+    // stack => [A] + 9, [F] + 6, [K] + 15
+    //
+    //     [L]
+    // add x -15
+    // add y 9
+    // stack => [A] + 9, [F] + 6
+    // stop if [K] != [L]
+    //
+    //     [M]
+    //     add x -9
+    // add y 12
+    // stack => [A] + 9,
+    //     stop if [F] - 3 != [M]
+    //
+    //     [N]
+    //     add x -3
+    // add y 12
+    // stack:
+    //     stop if [A] + 6 != [N]
+    //
+    //     [A] = [A]
+    //     [B] = [B]
+    //     [C] = [C]
+    //     [D] = [C] - 7
+    //     [E] = [B] - 5
+    //     [F] = [F]
+    //     [G] = [G]
+    //     [H] = [G] + 1
+    //     [I] = [I]
+    //     [J] = [I] + 5
+    //     [K] = [K]
+    //     [L] = [K]
+    //     [M] = [F] - 3
+    //     [N] = [A] + 6
+    //
+    //     [A][B][C][C-7][B-5][F][G][G+1][I][I+5][K][K][F-3][A+6]
 
     function part1(instructions) {
         const digit_parameters = [];
@@ -33,10 +118,7 @@
 
         // [A][B][C][C-7][B-5][F][G][G+1][I][I+5][K][K][F-3][A+6]
         // [3][9][9][2]  [4]  [9][8][9]  [4][9]  [9][9][6]  [9]
-        let model_number = 39924989499969;
-        // [A][B][C][C-7][B-5][F][G][G+1][I][I+5][K][K][F-3][A+6]
-        // [1][6][8][1]  [1]  [4][1][2]  [1][6]  [1][1][1]  [7]
-        // let model_number = 16811412161117;
+        const model_number = 39924989499969;
         const number_digits = Array.from(model_number.toString()).map(Number);
 
         const registers = run_alu(instructions, number_digits);
@@ -47,7 +129,7 @@
     function part2(input) {
         // [A][B][C][C-7][B-5][F][G][G+1][I][I+5][K][K][F-3][A+6]
         // [1][6][8][1]  [1]  [4][1][2]  [1][6]  [1][1][1]  [7]
-        let model_number = 16811412161117;
+        const model_number = 16811412161117;
         return model_number;
     }
 
