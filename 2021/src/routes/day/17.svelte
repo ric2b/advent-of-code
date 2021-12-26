@@ -35,7 +35,7 @@
             }
         }
 
-        return JSON.stringify({ highest_y, best_init_velocity });
+        return highest_y;
     }
 
     function part2({ x1, x2, y1, y2 }) {
