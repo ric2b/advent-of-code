@@ -5,8 +5,12 @@ fun main(args: Array<String>) {
     // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
     println("Program arguments: ${args.joinToString()}")
 
-    val day1Input = File("src/main/resources/inputs/day01.txt").readText()
+//    val (day) = args
 
-    println(day01.part1(day1Input))
-    println(day01.part2(day1Input))
+//    val dayInput = File("src/main/resources/inputs/day${day}.txt").readText()
+
+//    val days = listOf(day01, day02)
+//    val dayPackage = days[day]
+//    println(dayPackage.part1(dayInput))
+//    println(dayPackage.part2(dayInput))
 }
