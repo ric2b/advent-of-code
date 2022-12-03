@@ -23,18 +23,18 @@ class Day01KtTest {
                 10000
             """.trimIndent()
 
-        assertEquals(24000, part1(testInput))
+        assertEquals(24000, day01.part1(testInput))
     }
 
     @Test
     fun testPart1MyInput() {
         val myInput = File("src/main/resources/inputs/day01.txt").readText()
-        assertEquals(69836, part1(myInput))
+        assertEquals(69836, day01.part1(myInput))
     }
 
     @Test
     fun testPart2MyInput() {
         val myInput = File("src/main/resources/inputs/day01.txt").readText()
-        assertEquals(207968, part2(myInput))
+        assertEquals(207968, day01.part2(myInput))
     }
 }

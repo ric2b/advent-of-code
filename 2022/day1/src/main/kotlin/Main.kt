@@ -7,6 +7,6 @@ fun main(args: Array<String>) {
 
     val day1Input = File("src/main/resources/inputs/day01.txt").readText()
 
-    println(part1(day1Input))
-    println(part2(day1Input))
+    println(day01.part1(day1Input))
+    println(day01.part2(day1Input))
 }

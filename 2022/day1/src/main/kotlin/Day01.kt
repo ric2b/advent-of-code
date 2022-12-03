@@ -1,3 +1,5 @@
+package day01
+
 fun part1(input: String): Long {
     val elfCaloriesCarried: List<List<String>> = input.split("\n\n").map { it.lines() }
     val elfTotals = elfCaloriesCarried.map { elf -> elf.sumOf { it.toLong() } }
