@@ -3,8 +3,8 @@ package day04
 fun part1(input: String): Int {
     val pairs: List<Pair<IntRange, IntRange>> = input.trimEnd().lines().map { rawPair ->
         val (elfA, elfB) = rawPair.split(',').map { rawRange ->
-            val (a, b) = rawRange.split('-').map { it.toInt() }
-            IntRange(a, b)
+            val (a, b) = rawRange.split('-')
+            a.toInt()..b.toInt()
         }
         Pair(elfA, elfB)
     }
