@@ -158,7 +158,7 @@ class Day10KtTest {
 
     @Test
     fun testPart1MyInput() {
-        val myInput = File("src/main/resources/inputs/day10.txt").readText()
+        val myInput = this::class.java.classLoader.getResource("day10.txt")!!.readText()
         assertEquals(13180, day10.part1(myInput))
     }
 
@@ -179,7 +179,7 @@ class Day10KtTest {
 
     @Test
     fun testPart2MyInput() {
-        val myInput = File("src/main/resources/inputs/day10.txt").readText()
+        val myInput = this::class.java.classLoader.getResource("day10.txt")!!.readText()
 
         // EZFCHJAB
         val expected =

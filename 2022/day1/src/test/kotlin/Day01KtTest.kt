@@ -28,13 +28,13 @@ class Day01KtTest {
 
     @Test
     fun testPart1MyInput() {
-        val myInput = File("src/main/resources/inputs/day01.txt").readText()
+        val myInput = this::class.java.classLoader.getResource("day01.txt")!!.readText()
         assertEquals(69836, day01.part1(myInput))
     }
 
     @Test
     fun testPart2MyInput() {
-        val myInput = File("src/main/resources/inputs/day01.txt").readText()
+        val myInput = this::class.java.classLoader.getResource("day01.txt")!!.readText()
         assertEquals(207968, day01.part2(myInput))
     }
 }
