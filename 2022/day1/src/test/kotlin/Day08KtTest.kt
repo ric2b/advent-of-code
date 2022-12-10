@@ -1,6 +1,5 @@
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.io.File
 
 class Day08KtTest {
     private val testInput =
@@ -11,23 +10,17 @@ class Day08KtTest {
             33549
             35390
         """.trimIndent()
-
-
-    @Test
-    fun testPart1() = assertEquals(21, day08.part1(testInput))
+    val myInput = this::class.java.classLoader.getResource("day08.txt")!!.readText()
 
     @Test
-    fun testPart1MyInput() {
-        val myInput = this::class.java.classLoader.getResource("day08.txt")!!.readText()
-        assertEquals(1805, day08.part1(myInput))
-    }
+    fun `test part 1 with example`() = assertEquals(21, day08.part1(testInput))
 
     @Test
-    fun testPart2() = assertEquals(8, day08.part2(testInput))
+    fun `test part 1 with my input`() = assertEquals(1805, day08.part1(myInput))
 
     @Test
-    fun testPart2MyInput() {
-        val myInput = this::class.java.classLoader.getResource("day08.txt")!!.readText()
-        assertEquals(444528, day08.part2(myInput))
-    }
+    fun `test part 2 with example`() = assertEquals(8, day08.part2(testInput))
+
+    @Test
+    fun `test part 2 with my input`() = assertEquals(444528, day08.part2(myInput))
 }

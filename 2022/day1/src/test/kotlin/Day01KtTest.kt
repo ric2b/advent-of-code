@@ -1,40 +1,35 @@
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.io.File
 
 class Day01KtTest {
-    @Test
-    fun testPart1() {
-        val testInput =
-            """
-                1000
-                2000
-                3000
+    private val testInput =
+        """
+            1000
+            2000
+            3000
 
-                4000
+            4000
 
-                5000
-                6000
+            5000
+            6000
 
-                7000
-                8000
-                9000
+            7000
+            8000
+            9000
 
-                10000
-            """.trimIndent()
-
-        assertEquals(24000, day01.part1(testInput))
-    }
+            10000
+        """.trimIndent()
+    private val myInput = this::class.java.classLoader.getResource("day01.txt")!!.readText()
 
     @Test
-    fun testPart1MyInput() {
-        val myInput = this::class.java.classLoader.getResource("day01.txt")!!.readText()
-        assertEquals(69836, day01.part1(myInput))
-    }
+    fun `test part 1 with example`() = assertEquals(24000, day01.part1(testInput))
 
     @Test
-    fun testPart2MyInput() {
-        val myInput = this::class.java.classLoader.getResource("day01.txt")!!.readText()
-        assertEquals(207968, day01.part2(myInput))
-    }
+    fun `test part 1 with my input`() = assertEquals(69836, day01.part1(myInput))
+
+    @Test
+    fun `test part 2 with example`() = assertEquals(45000, day01.part2(testInput))
+
+    @Test
+    fun `test part 2 with my input`() = assertEquals(207968, day01.part2(myInput))
 }
