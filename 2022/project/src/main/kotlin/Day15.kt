@@ -1,6 +1,7 @@
 package day15
 
 import kotlin.math.abs
+import kotlin.math.max
 
 data class Pos(val x: Int, val y: Int)
 data class Region(val center: Pos, val distance: Int) {
@@ -11,10 +12,15 @@ data class Region(val center: Pos, val distance: Int) {
     }
 
     fun pointsAtY(y: Int): Set<Pos> {
-        return (-distance..distance)
-            .filter { dx -> y in center.y-(distance - abs(dx))..center.y+distance-abs(dx) }
+        val xRange = distance - abs(y - center.y)
+        return (-xRange..xRange)
             .map { dx -> Pos(center.x + dx, y) }
             .toSet()
+    }
+
+    fun rangeAtY(y: Int): IntRange {
+        val xRange = distance - abs(y - center.y)
+        return if (xRange > 0) (center.x - xRange)..(center.x + xRange) else IntRange.EMPTY
     }
 }
 
@@ -34,7 +40,21 @@ fun part1(input: String, y: Int = 2000000): Int {
         Sensor(Pos(sx, sy), Pos(bx, by))
     }.toSet()
 
-    return sensors.flatMap { it.emptyRegion().pointsAtY(y).minus(it.closestBeacon) }.toSet().size
+    val sortedRangesAtY = sensors.map { it.emptyRegion().rangeAtY(y) }.filter { !it.isEmpty() }.sortedBy { it.start }
+    val reducedRangesAtY = mutableListOf(sortedRangesAtY.first())
+
+    sortedRangesAtY.drop(1).forEach {
+        val last = reducedRangesAtY.removeLast()
+        if (it.start <= last.endInclusive) {
+            reducedRangesAtY.add(last.start..max(it.endInclusive, last.endInclusive))
+        } else {
+            reducedRangesAtY.add(last)
+            reducedRangesAtY.add(it)
+        }
+    }
+
+    return reducedRangesAtY.sumOf { it.endInclusive - it.start }
+//    return sensors.flatMap { it.emptyRegion().pointsAtY(y).minus(it.closestBeacon) }.toSet().size
 }
 
 fun part2(input: String, range: IntRange = 0..4000000): Long {

@@ -32,4 +32,25 @@ class Day15KtTest {
 
     @Test
     fun `test part 2 with my input`() = assertEquals(11016575214126, day15.part2(myInput))
+
+    @Test
+    fun rangeIntersection() {
+        val ranges = listOf(IntRange(1, 5), IntRange(3, 7), IntRange(6, 9))
+
+
+        val sortedRanges = ranges.sortedBy { it.start }
+        val reducedRanges: MutableList<IntRange> = mutableListOf(sortedRanges.first())
+
+        sortedRanges.drop(1).forEach {
+            val last = reducedRanges.removeLast()
+            if (it.start <= last.endInclusive && last.endInclusive <= it.endInclusive) {
+                reducedRanges.add(last.start..it.endInclusive)
+            } else {
+                reducedRanges.add(last)
+                reducedRanges.add(it)
+            }
+        }
+
+        assertEquals(listOf(1..9), reducedRanges)
+    }
 }
