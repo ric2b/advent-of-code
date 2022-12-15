@@ -1,4 +1,12 @@
-import org.junit.jupiter.api.Assertions.*
+
+import com.github.h0tk3y.betterParse.combinators.*
+import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.parseToEnd
+import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.lexer.literalToken
+import com.github.h0tk3y.betterParse.lexer.regexToken
+import com.github.h0tk3y.betterParse.parser.Parser
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class Day13KtTest {
@@ -63,4 +71,47 @@ class Day13KtTest {
 
     @Test
     fun `test part 2 with my input`() = assertEquals(20592, day13.part2(myInput))
+
+    @Test
+    fun parsing_combinators() {
+        // https://github.com/silmeth/jsonParser/blob/master/src/main/kotlin/com/github/silmeth/json/SimpleJsonGrammar.kt
+        class InputParser : Grammar<List<Int>>() {
+            val openingBracket by literalToken("[")
+            val closingBracket by literalToken("]")
+            val integer by regexToken("\\d+")
+            val comma by literalToken(",")
+
+            val number: Parser<Int> by integer.use { text.toInt() }
+            val listParser: Parser<List<Int>> by
+                (skip(openingBracket) and separatedTerms(number, comma, acceptZero = true) and skip(closingBracket))
+
+            override val rootParser by listParser
+        }
+
+        // Use the parser to parse a string according to the defined rules
+        assertEquals(listOf(1,2,3), InputParser().parseToEnd("[1,2,3]"))
+    }
+
+    @Test
+    fun parsing_nested() {
+        // https://github.com/silmeth/jsonParser/blob/master/src/main/kotlin/com/github/silmeth/json/SimpleJsonGrammar.kt
+        class InputParser : Grammar<List<Any>>() {
+            val openingBracket by literalToken("[")
+            val closingBracket by literalToken("]")
+            val integer by regexToken("\\d+")
+            val comma by regexToken(",\\s*")
+
+            val number: Parser<Int> by integer.use { text.toInt() }
+            val listParser: Parser<List<Any>> by
+            (skip(openingBracket) and separatedTerms(number or parser { listParser }, comma, acceptZero = true) and skip(closingBracket))
+
+            override val rootParser by listParser
+        }
+
+        // Use the parser to parse a string according to the defined rules
+        assertEquals(listOf<Any>(), InputParser().parseToEnd("[]"))
+        assertEquals(listOf<Any>(listOf<Any>(), listOf<Any>()), InputParser().parseToEnd("[[], []]"))
+        assertEquals(listOf(listOf(1), 4), InputParser().parseToEnd("[[1],4]"))
+        assertEquals(listOf(1, listOf(2, listOf(3, listOf(4, listOf(5, 6, 7)))), 8, 9), InputParser().parseToEnd("[1,[2,[3,[4,[5,6,7]]]],8,9]"))
+    }
 }
