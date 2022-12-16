@@ -33,5 +33,5 @@ class Day16KtTest {
     fun `test part 2 with example`() = assertEquals(1707, day16.part2(testInput))
 
     @Test
-    fun `test part 2 with my input`() = assertEquals(-1, day16.part2(myInput))
+    fun `test part 2 with my input`() = assertEquals(2351, day16.part2(myInput))
 }
