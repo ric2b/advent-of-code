@@ -1,153 +1,117 @@
 package day16
 
 import kotlin.math.max
+import kotlin.math.min
 
 typealias ValveId = String
-data class Valve(val id: ValveId, val flowRate: Long, val connectedTo: List<ValveId>) {
-    var isOpen: Boolean = false
-}
+data class Valve(val id: ValveId, val flowRate: Int, val connectedTo: List<ValveId>)
 
-val moveToValues: MutableMap<Triple<Valve, Set<Valve>, Int>, Long> = mutableMapOf()
-
-fun moveToValue(graph: Map<ValveId, Valve>, currentValve: Valve, openValves: Set<Valve>, currentMinute: Int): Long {
-    return moveToValues.getOrPut(Triple(currentValve, openValves, currentMinute)) {
-        if (currentMinute >= 30) return@getOrPut 0
-
-        val pressureReleasedThisMinute = openValves.sumOf { it.flowRate }
-        val valueOfMoving = currentValve.connectedTo.maxOf { moveToValue(graph, graph.getValue(it), openValves, currentMinute + 1) }
-
-        if (currentValve in openValves || currentValve.flowRate == 0L) {
-           return@getOrPut pressureReleasedThisMinute + valueOfMoving
-        }
-
-        val valueOfOpening = moveToValue(graph, currentValve, openValves = openValves + currentValve, currentMinute + 1)
-
-        return@getOrPut pressureReleasedThisMinute + max(valueOfMoving, valueOfOpening)
-    }
-}
-
-fun part1(input: String): Long {
+fun part1(input: String): Int {
     val graph: Map<ValveId, Valve> = input.trimEnd().lines().associate { line ->
         Regex("Valve (?<valve>\\w+) has flow rate=(\\d+); tunnel[s]? lead[s]? to valve[s]? ([\\w,\\s]+)+")
             .findAll(line).first().let {
-                val (_, valveId, flowRate, rawConnectedValves) = it.groupValues
-                valveId to Valve(valveId, flowRate.toLong(), rawConnectedValves.split(", "))
+                val (_, valveId, rawFlowRate, rawConnectedValves) = it.groupValues
+                valveId to Valve(valveId, rawFlowRate.toInt(), rawConnectedValves.split(", "))
             }
     }
 
-    var current = graph.getValue("AA")
-    var releasedPressure = 0L
+    val minutesLeft = 30
+    val distances = calculateDistances(graph)
 
-    for (minute in 1..30) {
-        println("== Minute $minute ==")
+    val start = distances.keys.find { it.id == "AA" }!!
+    val closedValves = distances.keys.filter { it.flowRate > 0 }.toSet()
 
-        val openValves = graph.values.filter { it.isOpen }.toSet()
-        val releasedThisMinute = openValves.sumOf { it.flowRate }
-        releasedPressure += releasedThisMinute
-
-        println("Valves ${openValves.map { it.id }} are open, releasing $releasedThisMinute pressure")
-
-        if (graph.values.any { !it.isOpen && it.flowRate > 0 }) {
-            val neighbours = current.connectedTo.map { graph.getValue(it) }
-
-            val bestNeighbor = neighbours.maxByOrNull { moveToValue(graph, it, openValves, minute ) }!!
-
-            val valueOfMoving =  moveToValue(graph, bestNeighbor, openValves, minute)
-            val valueOfOpening = moveToValue(graph, current, openValves = openValves + current, minute)
-
-            if (current.isOpen || valueOfMoving > valueOfOpening) {
-                println("You move to valve ${bestNeighbor.id}.")
-                current = bestNeighbor
-            } else {
-                println("You open valve ${current.id}.")
-                current.isOpen = true
-            }
-        }
-    }
-
-    return releasedPressure
+    val possibleOpeningOrders = validOpeningOrders(distances, start, closedValves, minutesLeft).distinct()
+    return possibleOpeningOrders.maxOf { openingOrder -> scoreOpeningOrder(distances, start, openingOrder, minutesLeft) }
 }
 
-typealias Locations = List<Valve>
-typealias LocationsId = Set<Valve>
-val movesWithElephant: MutableMap<Triple<LocationsId, Set<Valve>, Int>, Long> = mutableMapOf()
-fun moveWithElephant(graph: Map<ValveId, Valve>, currentLocations: Locations, openValves: Set<Valve>, currentMinute: Int): Long {
-    return movesWithElephant.getOrPut(Triple(currentLocations.toSet(), openValves, currentMinute)) {
-        if (currentMinute >= 30) return@getOrPut 0
-        if (graph.values.all { it.isOpen || it.flowRate == 0L }) return@getOrPut (30 - currentMinute) * openValves.sumOf { it.flowRate }
-
-        val (yourLocation: Valve, elephantLocation: Valve) = currentLocations
-        val (yourMoves: List<Valve>, elephantMoves: List<Valve>) = currentLocations.map { location -> location.connectedTo.map { graph.getValue(it) } + location }
-        val moveCombinations: List<Pair<Valve, Valve>> = yourMoves.flatMap { yourMove -> elephantMoves.map { elephantMove -> Pair(yourMove, elephantMove) } }
-
-        moveCombinations.maxOf { (yourMove: Valve, elephantMove: Valve) ->
-            val newOpenValves: MutableSet<Valve> = openValves.toMutableSet()
-            if (yourLocation == yourMove) newOpenValves.add(yourMove)
-            if (elephantLocation == elephantMove) newOpenValves.add(elephantMove)
-
-            val pressureReleasedThisMinute = openValves.sumOf { it.flowRate }
-            pressureReleasedThisMinute + moveWithElephant(graph, listOf(yourMove, elephantMove), newOpenValves, currentMinute + 1)
-        }
-    }
-}
-
-fun part2(input: String): Long {
+fun part2(input: String): Int {
     val graph: Map<ValveId, Valve> = input.trimEnd().lines().associate { line ->
         Regex("Valve (?<valve>\\w+) has flow rate=(\\d+); tunnel[s]? lead[s]? to valve[s]? ([\\w,\\s]+)+")
             .findAll(line).first().let {
-                val (_, valveId, flowRate, rawConnectedValves) = it.groupValues
-                valveId to Valve(valveId, flowRate.toLong(), rawConnectedValves.split(", "))
+                val (_, valveId, rawFlowRate, rawConnectedValves) = it.groupValues
+                valveId to Valve(valveId, rawFlowRate.toInt(), rawConnectedValves.split(", "))
             }
     }
 
-    val locations: MutableList<Valve> = mutableListOf(graph.getValue("AA"), graph.getValue("AA"))
-    var releasedPressure = 0L
+    val minutesLeft = 26
+    val distances = calculateDistances(graph)
 
-    for (minute in 1..30) {
-        println("== Minute $minute ==")
+    val start = distances.keys.find { it.id == "AA" }!!
+    val closedValves = distances.keys.filter { it.flowRate > 0 }.toSet()
 
-        if (minute < 5) {
-            println("Teaching the elefant")
-            continue
-        }
+    val possibleOpeningOrders = validOpeningOrders(distances, start, closedValves, minutesLeft).distinct()
 
-        val openValves = graph.values.filter { it.isOpen }.toSet()
-        val releasedThisMinute = openValves.sumOf { it.flowRate }
-        releasedPressure += releasedThisMinute
+    val bestScores: MutableMap<Set<Valve>, Int> = mutableMapOf()
+    possibleOpeningOrders.forEach {
+        val asSet = it.toSet()
+        bestScores[asSet] = max(bestScores.getOrDefault(asSet, 0), scoreOpeningOrder(distances, start, it, minutesLeft))
+    }
 
-        println("Valves ${openValves.map { it.id }} are open, releasing $releasedThisMinute pressure")
-
-        if (graph.values.any { !it.isOpen && it.flowRate > 0 }) {
-            val (yourLocation, elephantLocation) = locations
-
-            val (yourMoves, elephantMoves) = locations.map { location -> location.connectedTo.map { graph.getValue(it) } + location }
-            val moveCombinations: List<Pair<Valve, Valve>> = yourMoves.flatMap { yourMove -> elephantMoves.map { elephantMove -> Pair(yourMove, elephantMove) } }
-
-            val (yourMove, elephantMove) = moveCombinations.maxByOrNull { (yourMove, elephantMove) ->
-                val newOpenValves: MutableSet<Valve> = openValves.toMutableSet()
-                if (yourLocation == yourMove) newOpenValves.add(yourMove)
-                if (elephantLocation == elephantMove) newOpenValves.add(elephantMove)
-
-                moveWithElephant(graph, listOf(yourMove, elephantMove), newOpenValves, minute)
-            }!!
-
-            if (yourLocation != yourMove) {
-                println("You move to valve ${yourMove.id}.")
-                locations[0] = yourMove
-            } else {
-                println("You open valve ${yourLocation.id}.")
-                yourLocation.isOpen = true
+    val bestScoresList = bestScores.toList().sortedByDescending { it.second }
+    var bestCombinedScore = 0
+    bestScoresList.forEachIndexed { humanIndex, human ->
+        val elephantScores = bestScoresList.drop(humanIndex)
+        if (human.second + elephantScores.first().second > bestCombinedScore) {
+            elephantScores.forEach { elephant ->
+                if (human.first.intersect(elephant.first).isEmpty()) {
+                    bestCombinedScore = max(bestCombinedScore, human.second + elephant.second)
+                }
             }
+        }
+    }
+    return bestCombinedScore
+}
 
-            if (elephantLocation != elephantMove) {
-                println("The elephant moves to valve ${elephantMove.id}.")
-                locations[1] = elephantMove
-            } else {
-                println("The elephant opens valve ${elephantLocation.id}.")
-                elephantLocation.isOpen = true
+// aka Floyd-Warshall
+fun calculateDistances(graph: Map<ValveId, Valve>): Map<Valve, Map<Valve, Int>> {
+    val matrix: Map<Valve, MutableMap<Valve, Int>> = graph.values.associateWith { source ->
+        graph.values.associateWith { destination ->
+            when (destination.id) {
+                source.id -> 0
+                in source.connectedTo -> 1
+                else -> 2 * graph.size // "infinity" with no overflow risk
+            }
+        }.toMutableMap()
+    }
+
+    matrix.keys.forEach { b ->
+        matrix.forEach { (a, distances) ->
+            distances.forEach { (c, distance) ->
+                distances[c] = min(matrix.getValue(a).getValue(b) + matrix.getValue(b).getValue(c), distance)
             }
         }
     }
 
-    return releasedPressure
+    return matrix
+}
+
+fun validOpeningOrders(distances: Map<Valve, Map<Valve, Int>>, location: Valve, closedValves: Set<Valve>, minutesLeft: Int): Collection<List<Valve>> {
+    return when {
+        closedValves.isEmpty() || minutesLeft < 0 -> listOf(emptyList())
+        else -> closedValves.flatMap { nextValve ->
+            val minutesSpent = 1 + distances.getValue(location).getValue(nextValve)
+            if (minutesSpent > minutesLeft) {
+                listOf(emptyList())
+            } else {
+                listOf(emptyList<Valve>()) +
+                validOpeningOrders(distances, nextValve, closedValves - nextValve, minutesLeft - minutesSpent)
+                    .map { listOf(nextValve) + it }.distinct()
+            }
+        }
+    }
+}
+
+fun scoreOpeningOrder(distances: Map<Valve, Map<Valve, Int>>, start: Valve, openingOrder: List<Valve>, totalMinutes: Int): Int {
+    var minutesLeft = totalMinutes
+    var pressureReleased = 0
+    var location = start
+
+    for (nextValve in openingOrder) {
+        minutesLeft -= 1 + distances.getValue(location).getValue(nextValve)
+        pressureReleased += nextValve.flowRate * minutesLeft
+        location = nextValve
+    }
+
+    return pressureReleased
 }

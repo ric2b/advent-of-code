@@ -1,8 +1,7 @@
+
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-@Disabled
 class Day16KtTest {
     private val testInput =
         """
@@ -18,11 +17,6 @@ class Day16KtTest {
             Valve JJ has flow rate=21; tunnel leads to valve II
         """.trimIndent()
     val myInput = this::class.java.classLoader.getResource("day16.txt")!!.readText()
-
-    @Test
-    fun parser() {
-
-    }
 
     @Test
     fun `test part 1 with example`() = assertEquals(1651, day16.part1(testInput))
