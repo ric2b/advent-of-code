@@ -1,7 +1,8 @@
-
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
+@Disabled
 class Day16KtTest {
     private val testInput =
         """
