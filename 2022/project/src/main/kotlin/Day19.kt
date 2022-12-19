@@ -2,7 +2,7 @@ package day19
 
 import kotlin.math.max
 
-enum class Material { Ore, Clay, Obsidian, Geode }
+enum class Material { Geode, Obsidian, Clay, Ore }
 
 typealias RobotType = Material
 typealias RobotCosts = Map<RobotType, Map<Material, Int>>
@@ -38,10 +38,12 @@ fun part1(input: String): Int {
         )
     }
 
-    bestScore.clear()
-    scoreCache.clear()
+    val blueprintMaxGeodes: Map<Int, Int> = blueprints.associate {
+        bestScore = 0
+        scoreCache.clear()
+        it.id to score(it, Inventory(), 24)
+    }
 
-    val blueprintMaxGeodes: Map<Int, Int> = blueprints.associate { it.id to score(it, Inventory(), 24) }
     blueprintMaxGeodes.forEach { (id, geodes) -> println("$id: $geodes") }
     return blueprintMaxGeodes.map { (id, geodes) -> id * geodes }.sum()
 }
@@ -61,26 +63,32 @@ fun part2(input: String): Int {
         )
     }
 
-    bestScore.clear()
-    scoreCache.clear()
+    val blueprintMaxGeodes: Map<Int, Int> = blueprints.take(3).associate {
+        bestScore = 0
+        scoreCache.clear()
+        it.id to score(it, Inventory(), 32)
+    }
 
-    val blueprintMaxGeodes: Map<Int, Int> = blueprints.take(3).associate { it.id to score(it, Inventory(), 32) }
     blueprintMaxGeodes.forEach { (id, geodes) -> println("$id: $geodes") }
     return blueprintMaxGeodes.values.toList().reduce { a, b -> a * b }
 }
 
-val bestScore: MutableMap<Int, Int> = mutableMapOf()
+data class StateKey(val minutesLeft: Int, val inventory: Collection<Int>)
+
+var bestScore: Int = 0
 val producedIfRobotBuiltEveryMinute = Array(33) { ( it - 1 ) * it / 2 }
-val scoreCache: MutableMap<Triple<Blueprint, Inventory, Int>, Int> = mutableMapOf()
+val scoreCache: MutableMap<StateKey, Int> = HashMap(3_000_000)
 fun score(blueprint: Blueprint, inventory: Inventory, minutesLeft: Int): Int {
-    return scoreCache.getOrPut(Triple(blueprint, inventory, minutesLeft)) {
+    val stateKey = StateKey(minutesLeft, inventory.resources.values + inventory.robots.values)
+
+    return scoreCache.getOrPut(stateKey) {
         val (resources, robots) = inventory
 
         val currentScore = resources.getValue(Material.Geode)
-        bestScore[blueprint.id] = max(bestScore.getOrDefault(blueprint.id, 0), currentScore)
+        bestScore = max(bestScore, currentScore)
 
         val theoreticalBestScoreFromHere = currentScore + robots.getValue(Material.Geode) * minutesLeft + producedIfRobotBuiltEveryMinute[minutesLeft]
-        if (minutesLeft <= 0 || theoreticalBestScoreFromHere <= bestScore.getValue(blueprint.id)) {
+        if (minutesLeft <= 0 || theoreticalBestScoreFromHere <= bestScore) {
             return@getOrPut currentScore
         }
 
@@ -94,14 +102,14 @@ fun score(blueprint: Blueprint, inventory: Inventory, minutesLeft: Int): Int {
             }
         }
 
-        val resourcesAfterProduce = resources.keys.associateWith { resources.getValue(it) + robots.getValue(it) }
+        val resourcesAfterProduce = Material.values().associateWith { resources.getValue(it) + robots.getValue(it) }
 
         return@getOrPut buildOptions.maxOf { robotType ->
             if (robotType == null) {
                 return@maxOf score(blueprint, inventory.copy(resources = resourcesAfterProduce), minutesLeft - 1)
             }
 
-            val resourcesAfterBuild = resourcesAfterProduce.keys.associateWith {
+            val resourcesAfterBuild = Material.values().associateWith {
                 resourcesAfterProduce.getValue(it) - blueprint.robotCosts.getValue(robotType).getOrDefault(it, 0)
             }
 
