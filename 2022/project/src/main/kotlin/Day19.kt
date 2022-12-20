@@ -1,6 +1,7 @@
 package day19
 
 import kotlin.math.max
+import kotlin.math.min
 
 enum class Material { Geode, Obsidian, Clay, Ore }
 
@@ -10,15 +11,14 @@ typealias Resources = Map<Material, Int>
 typealias Robots = Map<RobotType, Int>
 
 data class Blueprint(val id: Int, val robotCosts: RobotCosts) {
-    fun availableBuilds(resources: Resources): Set<RobotType> {
-        return robotCosts
-            .filterValues { costs -> costs.all { (material, cost) -> resources.getValue(material) >= cost } }.keys
+    fun availableBuilds(ownedRobots: Robots): Set<RobotType> {
+        return robotCosts.filterValues { costs -> costs.keys.all { material -> ownedRobots.getValue(material) > 0 } }.keys
     }
 }
 
 data class Inventory(
     val resources: Resources = Material.values().associateWith { 0 },
-    val robots: Robots = Material.values().associateWith { if (it == Material.Ore) 1 else 0 },
+    val robots: Robots = mapOf(Material.Obsidian to 0, Material.Clay to 0, Material.Ore to 1),
 )
 
 private val inputRegex = Regex("Blueprint (\\d+): Each ore robot costs (\\d+) ore. Each clay robot costs (\\d+) ore. Each obsidian robot costs (\\d+) ore and (\\d+) clay. Each geode robot costs (\\d+) ore and (\\d+) obsidian.")
@@ -87,34 +87,52 @@ fun score(blueprint: Blueprint, inventory: Inventory, minutesLeft: Int): Int {
         val currentScore = resources.getValue(Material.Geode)
         bestScore = max(bestScore, currentScore)
 
-        val theoreticalBestScoreFromHere = currentScore + robots.getValue(Material.Geode) * minutesLeft + producedIfRobotBuiltEveryMinute[minutesLeft]
-        if (minutesLeft <= 0 || theoreticalBestScoreFromHere <= bestScore) {
+        if (minutesLeft <= 0 || currentScore + producedIfRobotBuiltEveryMinute[minutesLeft] <= bestScore) {
             return@getOrPut currentScore
         }
 
-        val buildOptions = blueprint.availableBuilds(resources).let { robotTypes ->
-            if (Material.Geode in robotTypes) { // build Geode whenever possible
-                listOf(Material.Geode)
-            } else {
-                robotTypes.filter { material -> // If already have more of a type than needed every turn, don't build more
-                    robots.getValue(material) < blueprint.robotCosts.values.maxOf { it.getOrDefault(material, 0) }
-                }.plus(null) // option of not building to accumulate resources
+        val buildOptions = blueprint.availableBuilds(robots).let { robotTypes ->
+            robotTypes.filter { material ->
+                // If already have more inventory and production than needed for the rest of time, don't build more
+                material == Material.Geode || blueprint.robotCosts.values.any {
+                    resources.getValue(material) + minutesLeft * robots.getValue(material) <  minutesLeft * it.getOrDefault(material, 0)
+                }
             }
         }
 
-        val resourcesAfterProduce = Material.values().associateWith { resources.getValue(it) + robots.getValue(it) }
-
         return@getOrPut buildOptions.maxOf { robotType ->
-            if (robotType == null) {
-                return@maxOf score(blueprint, inventory.copy(resources = resourcesAfterProduce), minutesLeft - 1)
+            val timeWaiting = blueprint.robotCosts.getValue(robotType).maxOf { (material, cost) ->
+                if (cost <= resources.getValue(material)) {
+                    0
+                } else {
+                    val missingResources = cost - resources.getValue(material)
+                    val production = robots.getValue(material)
+                    (missingResources / production) + if (missingResources % production == 0) 0 else 1
+                }
+            }
+
+            val resourcesAfterProduce = Material.values().associateWith {
+                resources.getValue(it) + min(minutesLeft, timeWaiting + 1) * robots.getOrDefault(it, 0)
+            }
+
+            if (minutesLeft < timeWaiting + 1) {
+                return@maxOf currentScore
             }
 
             val resourcesAfterBuild = Material.values().associateWith {
-                resourcesAfterProduce.getValue(it) - blueprint.robotCosts.getValue(robotType).getOrDefault(it, 0)
+                if (it == Material.Geode) {
+                    resourcesAfterProduce.getValue(it) + if (robotType == Material.Geode) minutesLeft - timeWaiting - 1 else 0
+                } else {
+                    resourcesAfterProduce.getValue(it) - blueprint.robotCosts.getValue(robotType).getOrDefault(it, 0)
+                }
+            }
+
+            if (robotType == Material.Geode) {
+                return@maxOf score(blueprint, inventory.copy(resources = resourcesAfterBuild), minutesLeft - timeWaiting - 1)
             }
 
             val newInventory = inventory.copy(resources = resourcesAfterBuild, robots = robots.plus(robotType to 1 + robots.getValue(robotType)))
-            score(blueprint, newInventory, minutesLeft - 1)
+            score(blueprint, newInventory, minutesLeft - timeWaiting - 1)
         }
     }
 }
