@@ -1,7 +1,5 @@
 package day22
 
-import java.lang.Math.floorMod
-
 fun part1(input: String): Int {
     throw NotImplementedError()
 }
