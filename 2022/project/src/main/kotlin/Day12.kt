@@ -33,7 +33,7 @@ fun djikstra(heightMap: List<List<Int>>, start: Pos?, goal: Pos): List<Pos> {
     }
 
     while (queue.isNotEmpty()) {
-        val u = queue.minBy { distance.getOrDefault(it, Int.MAX_VALUE) }
+        val u = queue.minByOrNull { distance.getOrDefault(it, Int.MAX_VALUE) }!!
         queue.remove(u)
 
         u.neighbours(heightMap).filter { it in queue }.forEach { v ->
