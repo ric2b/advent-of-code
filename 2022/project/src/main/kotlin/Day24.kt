@@ -49,8 +49,7 @@ fun part2(input: String): Int {
 }
 
 fun bfs(start: Pos, end: Pos, blizzards: Set<Blizzard>, initialMinute: Int = 0): Int {
-    val blizzardRowIndex = blizzards.filter { it.direction in listOf('<', '>') }.groupBy { it.initialPosition.y }
-    val blizzardColumnIndex = blizzards.filter { it.direction in listOf('^', 'v') }.groupBy { it.initialPosition.x }
+    val blizzardPositionCache: MutableMap<Int, Set<Pos>> = mutableMapOf()
     val mapEnd = Pos(max(start.y, end.y), max(start.x, end.x) + 1)
 
     val queue: MutableList<Pair<Pos, Int>> = mutableListOf(Pair(start, initialMinute))
@@ -66,8 +65,11 @@ fun bfs(start: Pos, end: Pos, blizzards: Set<Blizzard>, initialMinute: Int = 0):
         position.neighbours()
             .filter { it == start || it == end || (it.x in 1 until mapEnd.x && it.y in 1 until mapEnd.y) }
             .filter { Pair(it, minute + 1) !in visited }
-            .filter { neighbour -> blizzardRowIndex[neighbour.y]?.none { it.positionAt(minute + 1, mapEnd) == neighbour } ?: true }
-            .filter { neighbour -> blizzardColumnIndex[neighbour.x]?.none { it.positionAt(minute + 1, mapEnd) == neighbour } ?: true }
+            .filter { neighbour ->
+                !blizzardPositionCache.getOrPut(minute + 1) {
+                    blizzards.mapTo(mutableSetOf()) { it.positionAt(minute + 1, mapEnd) }
+                }.contains(neighbour)
+            }
             .forEach { neighbour ->
                 visited.add(Pair(neighbour, minute + 1))
                 queue.add(Pair(neighbour, minute + 1))

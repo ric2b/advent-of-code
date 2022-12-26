@@ -2,7 +2,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-@Disabled
 class Day22KtTest {
     private val testInput =
         """
@@ -29,7 +28,7 @@ class Day22KtTest {
     @Test
     fun `test part 1 with my input`() = assertEquals(191010, day22.part1(myInput))
 
-    @Disabled // no patience
+    @Disabled("no patience")
     @Test
     fun `test part 2 with example`() = assertEquals(5031, day22.part2(testInput))
 
