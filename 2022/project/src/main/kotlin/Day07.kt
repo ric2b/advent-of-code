@@ -1,24 +1,18 @@
 package day07
 
-data class ElfFile(val size: Long)
-data class ElfDirectory(
-    val parent: ElfDirectory?,
-    val files: MutableMap<String, ElfFile> = mutableMapOf(),
-    val directories: MutableMap<String, ElfDirectory> = mutableMapOf()
-) {
-    val size get() = allFiles(this).sumOf { it.size }
-}
+sealed class ElfNode(open val size: Long)
 
-fun allFiles(directory: ElfDirectory): List<ElfFile> {
-    return directory.files.values + directory.directories.values.flatMap { allFiles(it) }
-}
+class ElfFile(size: Long) : ElfNode(size)
 
-fun allDirectories(directory: ElfDirectory): List<ElfDirectory> {
-    return listOf(directory) + directory.directories.values.flatMap { allDirectories(it) }
+data class ElfDirectory(val children: MutableMap<String, ElfNode> = mutableMapOf()): ElfNode(size = 0) {
+    val descendants get(): Collection<ElfNode> = children.values + children.values.filterIsInstance<ElfDirectory>().flatMap(ElfDirectory::descendants)
+    val files get() = descendants.filterIsInstance<ElfFile>()
+    val directories get() = descendants.filterIsInstance<ElfDirectory>()
+    override val size get() = files.sumOf { it.size }
 }
 
 fun loadFileSystemInfo(rawCommands: List<String>): ElfDirectory {
-    val root = ElfDirectory(parent = null)
+    val root = ElfDirectory()
 
     val gotoRootRegex = Regex("\\$ cd /")
     val goUpRegex = Regex("\\$ cd ..")
@@ -28,26 +22,27 @@ fun loadFileSystemInfo(rawCommands: List<String>): ElfDirectory {
     val fileInfoRegex = Regex("(\\d+) ([\\w.]+)")
 
     var workingDirectory = root
+    val parents: MutableList<ElfDirectory> = mutableListOf()
 
     rawCommands.forEach { rawCommand ->
         when {
             gotoRootRegex.matches(rawCommand) -> workingDirectory = root
-            goUpRegex.matches(rawCommand) -> workingDirectory = workingDirectory.parent!!
+            goUpRegex.matches(rawCommand) -> workingDirectory = parents.removeLast()
             enterDirRegex.matches(rawCommand) -> {
                 val dirName = enterDirRegex.find(rawCommand)!!.groupValues[1]
-                val newDirectory = ElfDirectory(parent = workingDirectory)
-                workingDirectory.directories[dirName] = newDirectory
+                parents.add(workingDirectory)
+                val newDirectory = ElfDirectory()
+                workingDirectory.children[dirName] = newDirectory
                 workingDirectory = newDirectory
             }
             listRegex.matches(rawCommand) -> { /* no-op */ }
             dirInfoRegex.matches(rawCommand) -> {
                 val dirName = dirInfoRegex.find(rawCommand)!!.groupValues[1]
-                val newDirectory = ElfDirectory(parent = workingDirectory)
-                workingDirectory.directories[dirName] = newDirectory
+                workingDirectory.children[dirName] = ElfDirectory()
             }
             fileInfoRegex.matches(rawCommand) -> {
                 val (rawSize, fileName) = fileInfoRegex.find(rawCommand)!!.groupValues.slice(1..2)
-                workingDirectory.files[fileName] = ElfFile(size = rawSize.toLong())
+                workingDirectory.children[fileName] = ElfFile(size = rawSize.toLong())
             }
             else -> throw IllegalArgumentException(rawCommand)
         }
@@ -58,7 +53,7 @@ fun loadFileSystemInfo(rawCommands: List<String>): ElfDirectory {
 
 fun part1(input: String): Long {
     val root = loadFileSystemInfo(input.trimEnd().lines())
-    return allDirectories(root).filter { it.size <= 100000 }.sumOf { it.size }
+    return root.directories.filter { it.size <= 100000 }.sumOf { it.size }
 }
 
 fun part2(input: String): Long {
@@ -69,5 +64,5 @@ fun part2(input: String): Long {
     val currentFreeSpace = diskSpace - root.size
     val needToDelete = freeSpaceGoal - currentFreeSpace
 
-    return allDirectories(root).filter { it.size >= needToDelete }.minOf { it.size }
+    return root.directories.filter { it.size >= needToDelete }.minOf { it.size }
 }
