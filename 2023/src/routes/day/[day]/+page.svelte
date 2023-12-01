@@ -1,17 +1,13 @@
 <script>
     export let data
 
-    const day = data.day
+    const component = data.components[data.day - 1]
 </script>
 
-<nav>
-    <a href={ day > 1 ? day - 1 : null}>[Previous Day]</a>
-    <a href={ day < data.components.length - 1 ? day + 1 : null}>[Next Day]</a>
-</nav>
-
-{#if day in data.components}
-    <svelte:component this={data.components[day]} />
+{#if component}
+    <svelte:component this={component} raw_input={data.input} />
+<!--    <svelte:component this={data.components[day]} raw_input='bla'/>-->
 {:else}
-    <p>Day not implemented yet</p>
+    <p>Not implemented yet</p>
     <img src="https://cataas.com/cat/sad" alt="sad cat" />
 {/if}
