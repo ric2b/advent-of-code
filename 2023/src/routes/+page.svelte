@@ -1,2 +1,11 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+    export let data;
+</script>
+
+<title>2023 Solutions</title>
+
+<ul>
+    {#each data.components.slice(1) as day_component, i}
+        <li><a href={`day/${i+1}`}>Day {i+1}</a></li>
+    {/each}
+</ul>
