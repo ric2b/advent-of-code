@@ -8,6 +8,8 @@
         : `${data.repo_link}/tree/master/2023`;
 </script>
 
+<title>2023 Solutions</title>
+
 <header>
     <h1><a href="/">Advent of Code 2023</a></h1>
 
