@@ -1,5 +1,6 @@
 export function part1(raw_input: string): number {
 	return raw_input
+		.trim()
 		.split('\n')
 		.map((s) => {
 			const numbers = [...s.match(/\d/g)];
@@ -10,6 +11,7 @@ export function part1(raw_input: string): number {
 
 export function part2(raw_input) {
 	return raw_input
+		.trim()
 		.split('\n')
 		.map((s) => {
 			const replacements = {

@@ -12,8 +12,7 @@ describe('part 1', () => {
             a1b2c3d4e5f
             treb7uchet
         `
-			.replace(/^\s+/gm, '')
-			.trim();
+			.replace(/^\s+/gm, '');
 
 		expect(part1(raw_input)).toBe(142);
 	});
@@ -37,8 +36,7 @@ describe('part 2', () => {
             zoneight234
             7pqrstsixteen
         `
-			.replace(/^\s+/gm, '')
-			.trim();
+			.replace(/^\s+/gm, '');
 
 		expect(part2(raw_input)).toBe(281);
 	});

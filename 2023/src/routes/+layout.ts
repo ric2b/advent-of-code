@@ -1,5 +1,8 @@
 export async function load({ params }) {
-	const titles = ['Trebuchet?!'];
+	const titles = [
+		'Trebuchet?!',
+		'Cube Conundrum'
+	];
 
 	const components = [];
 	for (const [day] of titles.entries()) {

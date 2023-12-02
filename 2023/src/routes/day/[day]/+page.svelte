@@ -1,7 +1,7 @@
 <script>
 	export let data;
 
-	const component = data.components[data.day - 1];
+	$: component = data.components[data.day - 1];
 </script>
 
 {#if component}
