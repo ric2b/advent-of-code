@@ -1,7 +1,8 @@
 export async function load({ params }) {
 	const titles = [
 		'Trebuchet?!',
-		'Cube Conundrum'
+		'Cube Conundrum',
+		'Gear Ratios',
 	];
 
 	const components = [];

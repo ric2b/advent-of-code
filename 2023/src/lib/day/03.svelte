@@ -1,7 +1,7 @@
 <script>
 	export let raw_input;
 
-	import { part1, part2 } from './01';
+	import { part1, part2 } from './03';
 
 	$: p1 = part1(raw_input);
 	$: p2 = part2(raw_input);
