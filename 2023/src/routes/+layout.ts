@@ -3,6 +3,7 @@ export async function load({ params }) {
 		'Trebuchet?!',
 		'Cube Conundrum',
 		'Gear Ratios',
+		'Scratchcards',
 	];
 
 	const components = [];
