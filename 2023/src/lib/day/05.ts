@@ -34,7 +34,6 @@ export function part2(raw_input: string): number {
 
 	const seed_ranges = [...raw_seeds.match(/\d+ \d+/g)].flatMap(s => {
 		const [start, length] = s.split(' ').map(Number);
-		// return Array.from({ length }, (_, i) => start + i);
 		return { start, length };
 	})
 
@@ -47,26 +46,22 @@ export function part2(raw_input: string): number {
 			});
 	});
 
-	const locations = seed_ranges.map((seed_range, i) => {
-		console.log(`Range ${i} of ${seed_ranges.length}, length: ${seed_range.length}`);
-		let min_location_for_range = Infinity
+	conversions.reverse()
 
-		for (let seed = seed_range.start; seed < seed_range.start + seed_range.length; seed++) {
-			let current_value = seed;
-			for(const conversion of conversions) {
-				const matched_conversion = conversion.find(c => c.source <= current_value && current_value < c.source + c.length)
+	for (let i = 0; ; i++) {
+		let current_value = i;
+		for(const conversion of conversions) {
+			const matched_conversion = conversion.find(c => c.destination <= current_value && current_value < c.destination + c.length)
 
-				if (matched_conversion) {
-					current_value = current_value + (matched_conversion.destination - matched_conversion.source)
-				}
-			}
-			if (current_value < min_location_for_range) {
-				min_location_for_range = current_value;
+			if (matched_conversion) {
+				current_value = current_value - (matched_conversion.destination - matched_conversion.source)
 			}
 		}
 
-		return min_location_for_range;
-	})
-
-	return Math.min(...locations);
+		for (const seed_range of seed_ranges) {
+			if (seed_range.start <= current_value && current_value <= seed_range.start + seed_range.length ) {
+				return i;
+			}
+		}
+	}
 }
