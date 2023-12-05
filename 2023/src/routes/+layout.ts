@@ -4,6 +4,7 @@ export async function load({ params }) {
 		'Cube Conundrum',
 		'Gear Ratios',
 		'Scratchcards',
+		'If You Give A Seed A Fertilizer',
 	];
 
 	const components = [];
