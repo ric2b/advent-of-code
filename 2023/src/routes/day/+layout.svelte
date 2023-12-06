@@ -14,8 +14,8 @@
 <article>
 	<h2>--- Day {day} ---</h2>
 
-<!--	<p class:aoc_yellow={$part1_result !== '...'}>Part 1: {$part1_result}</p>-->
-<!--	<p class:aoc_yellow={$part2_result !== '...'}>Part 2: {$part2_result}</p>-->
+	<!--	<p class:aoc_yellow={$part1_result !== '...'}>Part 1: {$part1_result}</p>-->
+	<!--	<p class:aoc_yellow={$part2_result !== '...'}>Part 2: {$part2_result}</p>-->
 
 	<slot />
 </article>

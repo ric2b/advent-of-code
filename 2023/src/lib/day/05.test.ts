@@ -5,8 +5,8 @@ import path from 'path';
 import { part1, part2 } from './05';
 
 describe('part 1', () => {
-    it('calculates the right value for the example', () => {
-        const raw_input = `
+	it('calculates the right value for the example', () => {
+		const raw_input = `
             seeds: 79 14 55 13
             
             seed-to-soil map:
@@ -40,23 +40,22 @@ describe('part 1', () => {
             humidity-to-location map:
             60 56 37
             56 93 4
-        `
-            .replace(/^ +/gm, '');
+        `.replace(/^ +/gm, '');
 
-        expect(part1(raw_input)).toBe(35);
-    });
+		expect(part1(raw_input)).toBe(35);
+	});
 
-    it('calculates the right value for the input', () => {
-        const filePath = path.resolve(process.cwd(), 'static/inputs/05.txt');
-        const raw_input = readFileSync(filePath, 'utf8');
+	it('calculates the right value for the input', () => {
+		const filePath = path.resolve(process.cwd(), 'static/inputs/05.txt');
+		const raw_input = readFileSync(filePath, 'utf8');
 
-        expect(part1(raw_input)).toBe(388071289);
-    });
+		expect(part1(raw_input)).toBe(388071289);
+	});
 });
 
 describe('part 2', () => {
-    it('calculates the right value for the example', () => {
-        const raw_input = `
+	it('calculates the right value for the example', () => {
+		const raw_input = `
             seeds: 79 14 55 13
             
             seed-to-soil map:
@@ -90,16 +89,15 @@ describe('part 2', () => {
             humidity-to-location map:
             60 56 37
             56 93 4
-        `
-            .replace(/^ +/gm, '');
+        `.replace(/^ +/gm, '');
 
-        expect(part2(raw_input)).toBe(46);
-    });
+		expect(part2(raw_input)).toBe(46);
+	});
 
-    it('calculates the right value for the input', () => {
-        const filePath = path.resolve(process.cwd(), 'static', 'inputs', '05.txt');
-        const raw_input = readFileSync(filePath, 'utf8');
+	it('calculates the right value for the input', () => {
+		const filePath = path.resolve(process.cwd(), 'static', 'inputs', '05.txt');
+		const raw_input = readFileSync(filePath, 'utf8');
 
-        expect(part2(raw_input)).toBe(84206669);
-    });
+		expect(part2(raw_input)).toBe(84206669);
+	});
 });

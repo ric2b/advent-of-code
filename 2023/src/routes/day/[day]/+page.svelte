@@ -2,7 +2,7 @@
 	export let data;
 
 	$: component = data.components[data.day - 1];
-	$: raw_input = data.input
+	$: raw_input = data.input;
 </script>
 
 {#if component}
