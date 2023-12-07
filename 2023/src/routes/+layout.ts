@@ -5,7 +5,8 @@ export async function load({ params }) {
 		'Gear Ratios',
 		'Scratchcards',
 		'If You Give A Seed A Fertilizer',
-		'Wait For It'
+		'Wait For It',
+		'Camel Cards'
 	];
 
 	const components = [];
