@@ -54,7 +54,7 @@ describe('part 2', () => {
 			22C = (22Z, 22Z)
 			22Z = (22B, 22B)
 			XXX = (XXX, XXX)
-        `.trim().replace(/^\t+/gm, '');
+        `.replace(/^\t+/gm, '');
 
 		expect(part2(raw_input)).toBe(6);
 	});
@@ -63,6 +63,6 @@ describe('part 2', () => {
 		const filePath = path.resolve(process.cwd(), 'static', 'inputs', '08.txt');
 		const raw_input = readFileSync(filePath, 'utf8');
 
-		expect(part2(raw_input)).toBe(2);
+		expect(part2(raw_input)).toBe(20685524831999);
 	});
 });

@@ -1,16 +1,15 @@
 export function part1(raw_input: string): number {
 	const [raw_instructions, , ...raw_locations] = raw_input.trim().split('\n');
 
-	const instructions = [...raw_instructions.match(/([LR])/g)]
+	const instructions = [...raw_instructions.match(/([LR])/g)];
 
 	const locations = new Map();
-	raw_locations.map(raw_location => {
-		const [, location, left, right] = /(\w+) = \((\w+), (\w+)\)/g.exec(raw_location)
-		if (locations.has(location)) { 1/0 }
-		locations.set(location, [left, right])
-	})
+	raw_locations.map((raw_location) => {
+		const [, location, left, right] = /(\w+) = \((\w+), (\w+)\)/g.exec(raw_location);
+		locations.set(location, [left, right]);
+	});
 
-	let current_location = 'AAA'
+	let current_location = 'AAA';
 	let step = 0;
 
 	while (current_location != 'ZZZ') {
@@ -28,28 +27,40 @@ export function part1(raw_input: string): number {
 export function part2(raw_input: string): number {
 	const [raw_instructions, , ...raw_locations] = raw_input.trim().split('\n');
 
-	const instructions = [...raw_instructions.match(/([LR])/g)]
+	const instructions = [...raw_instructions.match(/([LR])/g)];
 
 	const locations = new Map();
-	raw_locations.map(raw_location => {
-		const [, location, left, right] = /(\w+) = \((\w+), (\w+)\)/g.exec(raw_location)
-		if (locations.has(location)) { 1/0 }
-		locations.set(location, [left, right])
-	})
+	raw_locations.map((raw_location) => {
+		const [, location, left, right] = /(\w+) = \((\w+), (\w+)\)/g.exec(raw_location);
+		locations.set(location, [left, right]);
+	});
 
-	let current_locations = [...locations.keys()].filter(k => k.endsWith('A'))
-	let step = 0;
+	const current_locations = [...locations.keys()].filter((k) => k.endsWith('A'));
+	const loop_lengths = new Array(current_locations.length);
 
-	while (!current_locations.every(l => l.endsWith('Z'))) {
-		const current_instruction = instructions[step % instructions.length];
-		const neighbour_index = current_instruction == 'L' ? 0 : 1
+	for (let i = 0; i < current_locations.length; i++) {
+		let current_location = current_locations[i];
+		let step = 0;
 
-		for(let i = 0; i < current_locations.length; i++) {
-			current_locations[i] = locations.get(current_locations[i])[neighbour_index];
+		while (!current_location.endsWith('Z')) {
+			const current_instruction = instructions[step % instructions.length];
+
+			const neighbours = locations.get(current_location);
+			current_location = current_instruction == 'L' ? neighbours[0] : neighbours[1];
+
+			step++;
 		}
 
-		step++;
+		loop_lengths[i] = step;
 	}
 
-	return step;
+	return lcmArray(loop_lengths);
+}
+
+function lcmArray(numArray) {
+	return numArray.reduce((a, b) => (a * b) / gcd(a, b), 1);
+}
+
+function gcd(a, b) {
+	return b === 0 ? a : gcd(b, a % b);
 }

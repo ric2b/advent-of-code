@@ -6,7 +6,8 @@ export async function load({ params }) {
 		'Scratchcards',
 		'If You Give A Seed A Fertilizer',
 		'Wait For It',
-		'Camel Cards'
+		'Camel Cards',
+		'Haunted Wasteland'
 	];
 
 	const components = [];

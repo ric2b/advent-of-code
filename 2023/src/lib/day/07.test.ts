@@ -58,7 +58,7 @@ describe('part 2', () => {
 			AJ44J 6
         `.replace(/^ +/gm, '');
 
-		expect(part2(raw_input)).toBe(1*1 + 2*2 + 3*3 + 4*4 + 5*5 + 6*6);
+		expect(part2(raw_input)).toBe(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4 + 5 * 5 + 6 * 6);
 	});
 
 	it('calculates the right value for the input', () => {
