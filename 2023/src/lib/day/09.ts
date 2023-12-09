@@ -6,16 +6,10 @@ export function part1(raw_input: string): number {
 			return [...raw_sequence.match(/-?\d+/g)].map(Number);
 		});
 
-	const next_values = sequences.map(calculate_derivatives).map((sequence_derivatives) => {
-		let derivative = 0;
-		for (let i = sequence_derivatives.length - 2; i >= 0; i--) {
-			derivative = last(sequence_derivatives[i]) + derivative;
-		}
-
-		return derivative;
-	});
-
-	return next_values.reduce((a, b) => a + b);
+	return sequences
+		.map(calculate_derivatives)
+		.map(calculate_next_value)
+		.reduce((a, b) => a + b);
 }
 
 export function part2(raw_input: string): number {
@@ -26,15 +20,20 @@ export function part2(raw_input: string): number {
 			return [...raw_sequence.match(/-?\d+/g)].map(Number);
 		});
 
-	const next_values = sequences.map(calculate_derivatives).map((sequence_derivatives) => {
-		let derivative = 0;
-		for (let i = sequence_derivatives.length - 2; i >= 0; i--) {
-			derivative = sequence_derivatives[i][0] - derivative;
-		}
-		return derivative;
-	});
+	return sequences
+		.map((s) => s.reverse())
+		.map(calculate_derivatives)
+		.map(calculate_next_value)
+		.reduce((a, b) => a + b);
+}
 
-	return next_values.reduce((a, b) => a + b);
+function calculate_next_value(sequence_derivatives) {
+	let derivative = 0;
+	for (let i = sequence_derivatives.length - 2; i >= 0; i--) {
+		derivative = last(sequence_derivatives[i]) + derivative;
+	}
+
+	return derivative;
 }
 
 function calculate_derivatives(sequence) {
