@@ -94,7 +94,6 @@ describe('part 2', () => {
 		expect(part2(raw_input)).toBe(46);
 	});
 
-
 	it('calculates the right value for custom example 1', () => {
 		const raw_input = `
             seeds: 13 1 14 1 55 1 79 1
