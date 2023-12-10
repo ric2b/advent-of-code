@@ -8,7 +8,8 @@ export async function load({ params }) {
 		'Wait For It',
 		'Camel Cards',
 		'Haunted Wasteland',
-		'Mirage Maintenance'
+		'Mirage Maintenance',
+		'Pipe Maze'
 	];
 
 	const components = [];

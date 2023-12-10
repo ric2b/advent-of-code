@@ -17,14 +17,69 @@ export function part1(raw_input: string): number {
 }
 
 export function part2(raw_input: string): number {
-	const sequences = raw_input
-		.trim()
-		.split('\n')
-		.map((raw_sequence) => {
-			return [...raw_sequence.match(/-?\d+/g)].map(Number);
-		});
+	const grid: string[] = raw_input.trim().split('\n');
 
-	return 2;
+	const start_row = grid.findIndex(s => s.includes('S'));
+	const start_col = grid[start_row].indexOf('S');
+	const start_location: location = {row: start_row, col: start_col};
+
+	const distances= dijkstra(grid, start_location)
+
+	grid[start_row] = grid[start_row].replace('S', start_type(grid, start_location))
+
+	return count_points_inside_loop(grid, new Set(distances.keys()));
+}
+
+function count_points_inside_loop(grid: string[], loop_sections: Set<string>): number {
+	let inside_loop = false;
+	let counter = 0;
+
+	for(let row = 0; row < grid.length; row++) {
+		for(let col = 0; col < grid[0].length; col++) {
+			if(loop_sections.has(key({row, col}))) {
+				switch (grid[row][col]) {
+					case '-':
+						break;
+					case '|':
+						inside_loop = !inside_loop
+						break;
+					case 'J':
+						inside_loop = !inside_loop
+						break;
+					case 'L':
+						inside_loop = !inside_loop
+						break;
+					case 'F':
+						// no change, we're "riding the top" of the tubes so there's no crossing over
+						break;
+					case '7':
+						// no change, we're "riding the top" of the tubes so there's no crossing over
+						break;
+				}
+			} else if (inside_loop) {
+				counter++;
+			}
+		}
+	}
+
+	return counter;
+}
+
+function start_type(grid: string[], location: location): '-'|'|'|'J'|'L'|'F'|'7' {
+	let candidates = [];
+	if (['|', '7', 'F'].includes(grid[location.row - 1]?.[location.col])) candidates.push({row: location.row - 1, col: location.col});
+	if (['|', 'J', 'L'].includes(grid[location.row + 1]?.[location.col])) candidates.push({row: location.row + 1, col: location.col});
+	if (['-', 'F', 'L'].includes(grid[location.row]?.[location.col - 1])) candidates.push({row: location.row, col: location.col - 1});
+	if (['-', '7', 'J'].includes(grid[location.row]?.[location.col + 1])) candidates.push({row: location.row, col: location.col + 1});
+
+	if (candidates.every(c => c.row == location.row)) return '-';
+	if (candidates.every(c => c.col == location.col)) return '|';
+	if (candidates[0].row < location.row && candidates[1].col < location.col) return 'J';
+	if (candidates[0].row < location.row && candidates[1].col > location.col) return 'L';
+	if (candidates[0].row > location.row && candidates[1].col < location.col) return '7';
+	if (candidates[0].row > location.row && candidates[1].col > location.col) return 'F';
+
+	throw new Error("Bug found");
 }
 
 function dijkstra(grid: string[], start: location) {
@@ -86,10 +141,10 @@ function getNeighbors(grid: string[], location: location): location[] {
 			break;
 		case 'S':
 			candidates = [];
-			if (['|', '7', 'F'].includes(grid[location.row - 1][location.col])) candidates.push({row: location.row - 1, col: location.col});
-			if (['|', 'J', 'L'].includes(grid[location.row + 1][location.col])) candidates.push({row: location.row + 1, col: location.col});
-			if (['-', 'F', 'L'].includes(grid[location.row][location.col - 1])) candidates.push({row: location.row, col: location.col - 1});
-			if (['-', '7', 'J'].includes(grid[location.row][location.col + 1])) candidates.push({row: location.row, col: location.col + 1});
+			if (['|', '7', 'F'].includes(grid[location.row - 1]?.[location.col])) candidates.push({row: location.row - 1, col: location.col});
+			if (['|', 'J', 'L'].includes(grid[location.row + 1]?.[location.col])) candidates.push({row: location.row + 1, col: location.col});
+			if (['-', 'F', 'L'].includes(grid[location.row]?.[location.col - 1])) candidates.push({row: location.row, col: location.col - 1});
+			if (['-', '7', 'J'].includes(grid[location.row]?.[location.col + 1])) candidates.push({row: location.row, col: location.col + 1});
 			break;
 		default:
 			candidates = [];
