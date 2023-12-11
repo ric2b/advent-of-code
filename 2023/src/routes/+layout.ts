@@ -9,7 +9,8 @@ export async function load({ params }) {
 		'Camel Cards',
 		'Haunted Wasteland',
 		'Mirage Maintenance',
-		'Pipe Maze'
+		'Pipe Maze',
+		'Cosmic Expansion'
 	];
 
 	const components = [];
