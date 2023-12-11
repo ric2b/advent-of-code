@@ -45,13 +45,31 @@ describe('part 2', () => {
 			#...#.....
         `.replace(/^\t+/gm, '');
 
-		expect(part2(raw_input)).toBe(8410);
+		expect(part2(raw_input, 10)).toBe(1030);
 	});
 
+	it('calculates the right value for example 2', () => {
+		const raw_input = `
+			...#......
+			.......#..
+			#.........
+			..........
+			......#...
+			.#........
+			.........#
+			..........
+			.......#..
+			#...#.....
+        `.replace(/^\t+/gm, '');
+
+		expect(part2(raw_input, 100)).toBe(8410);
+	});
+
+	// 9486878 too low
 	it('calculates the right value for the input', () => {
 		const filePath = path.resolve(process.cwd(), 'static', 'inputs', '11.txt');
 		const raw_input = readFileSync(filePath, 'utf8');
 
-		expect(part2(raw_input)).toBe(349);
+		expect(part2(raw_input, 1_000_000)).toBe(678728808158);
 	});
 });
