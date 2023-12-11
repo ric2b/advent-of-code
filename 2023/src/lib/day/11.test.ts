@@ -65,11 +65,10 @@ describe('part 2', () => {
 		expect(part2(raw_input, 100)).toBe(8410);
 	});
 
-	// 9486878 too low
 	it('calculates the right value for the input', () => {
 		const filePath = path.resolve(process.cwd(), 'static', 'inputs', '11.txt');
 		const raw_input = readFileSync(filePath, 'utf8');
 
-		expect(part2(raw_input, 1_000_000)).toBe(678728808158);
+		expect(part2(raw_input)).toBe(678728808158);
 	});
 });

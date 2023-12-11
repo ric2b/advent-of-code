@@ -7,7 +7,7 @@ export function part1(raw_input: string): number {
 	return part2(raw_input, 2);
 }
 
-export function part2(raw_input: string, expansion_factor: number = 1): number {
+export function part2(raw_input: string, expansion_factor: number = 1_000_000): number {
 	const universe: string[] = raw_input.trim().split('\n');
 
 	const empty_rows = empty_row_indexes(universe);
@@ -40,44 +40,13 @@ export function part2(raw_input: string, expansion_factor: number = 1): number {
 	return distances.reduce((a, b) => a + b);
 }
 
-// export function filtered_grid(raw_input: string): string[] {
-// 	const grid: string[] = raw_input.trim().split('\n');
-//
-// 	const start_row = grid.findIndex((s) => s.includes('S'));
-// 	const start_col = grid[start_row].indexOf('S');
-// 	const start_location: location = { row: start_row, col: start_col };
-//
-// 	const distances = dijkstra(grid, start_location);
-//
-// 	grid[start_row] = grid[start_row].replace('S', start_type(grid, start_location));
-//
-// 	const filtered_grid = grid.map((grid_row, row) => {
-// 		return Array.from(grid_row)
-// 			.map((char, col) => {
-// 				if (!distances.has(key({ row, col }))) {
-// 					return ' ';
-// 				}
-//
-// 				switch (char) {
-// 					case 'J':
-// 						return '┘';
-// 					case 'L':
-// 						return '└';
-// 					case 'F':
-// 						return '┌';
-// 					case '7':
-// 						return '┐';
-// 					case '-':
-// 						return '─';
-// 					case '|':
-// 						return '│';
-// 				}
-// 			})
-// 			.join('');
-// 	});
-//
-// 	return filtered_grid;
-// }
+export function clean_universe(raw_input: string): string[] {
+	return raw_input
+		.trim()
+		.split('\n')
+		.map((row) => row.replace(/\./g, ' '))
+		.map((row) => row.replace(/#/g, '⭐️'));
+}
 
 function expanded_manhattan_distance(
 	empty_rows,
