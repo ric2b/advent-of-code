@@ -10,7 +10,8 @@ export async function load({ params }) {
 		'Haunted Wasteland',
 		'Mirage Maintenance',
 		'Pipe Maze',
-		'Cosmic Expansion'
+		'Cosmic Expansion',
+		'Hot Springs'
 	];
 
 	const components = [];
