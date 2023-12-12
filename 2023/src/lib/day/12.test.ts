@@ -138,7 +138,6 @@ describe('part 1', () => {
 		expect(part1(raw_input)).toBe(10);
 	});
 
-
 	it('calculates the right value for example 2', () => {
 		const raw_input = `
 			. 1
