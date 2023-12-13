@@ -11,7 +11,8 @@ export async function load({ params }) {
 		'Mirage Maintenance',
 		'Pipe Maze',
 		'Cosmic Expansion',
-		'Hot Springs'
+		'Hot Springs',
+		'Point of Incidence'
 	];
 
 	const components = [];
