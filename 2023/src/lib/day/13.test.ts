@@ -128,17 +128,58 @@ describe('part 1', () => {
 describe('part 2', () => {
 	it('calculates the right value for the example', () => {
 		const raw_input = `
-            Time:      7  15   30
-            Distance:  9  40  200
+            #.##..##.
+			..#.##.#.
+			##......#
+			##......#
+			..#.##.#.
+			..##..##.
+			#.#.##.#.
+			
+			#...##..#
+			#....#..#
+			..##..###
+			#####.##.
+			#####.##.
+			..##..###
+			#....#..#
         `.replace(/^[ \t]+/gm, '');
 
-		expect(part2(raw_input)).toBe(1);
+		expect(part2(raw_input)).toBe(400);
+	});
+
+	it('calculates the right value for example 1a', () => {
+		const raw_input = `
+            #.##..##.
+			..#.##.#.
+			##......#
+			##......#
+			..#.##.#.
+			..##..##.
+			#.#.##.#.
+        `.replace(/^[ \t]+/gm, '');
+
+		expect(part2(raw_input)).toBe(300);
+	});
+
+	it('calculates the right value for example 1b', () => {
+		const raw_input = `
+			#...##..#
+			#....#..#
+			..##..###
+			#####.##.
+			#####.##.
+			..##..###
+			#....#..#
+        `.replace(/^[ \t]+/gm, '');
+
+		expect(part2(raw_input)).toBe(100);
 	});
 
 	it('calculates the right value for the input', () => {
 		const filePath = path.resolve(process.cwd(), 'static', 'inputs', '13.txt');
 		const raw_input = readFileSync(filePath, 'utf8');
 
-		expect(part2(raw_input)).toBe(1);
+		expect(part2(raw_input)).toBe(25450);
 	});
 });
