@@ -12,7 +12,8 @@ export async function load({ params }) {
 		'Pipe Maze',
 		'Cosmic Expansion',
 		'Hot Springs',
-		'Point of Incidence'
+		'Point of Incidence',
+		'Parabolic Reflector Dish'
 	];
 
 	const components = [];
