@@ -13,7 +13,8 @@ export async function load({ params }) {
 		'Cosmic Expansion',
 		'Hot Springs',
 		'Point of Incidence',
-		'Parabolic Reflector Dish'
+		'Parabolic Reflector Dish',
+		'Lens Library'
 	];
 
 	const components = [];
