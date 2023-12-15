@@ -3,6 +3,6 @@ export async function load({ fetch, params }) {
 	const padded_day = day.toString().padStart(2, '0');
 
 	return {
-		input: (await fetch(`/inputs/${padded_day}.txt`)).text()
+		input: await (await fetch(`/inputs/${padded_day}.txt`)).text()
 	};
 }
