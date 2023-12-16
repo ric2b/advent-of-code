@@ -14,7 +14,8 @@ export async function load({ params }) {
 		'Hot Springs',
 		'Point of Incidence',
 		'Parabolic Reflector Dish',
-		'Lens Library'
+		'Lens Library',
+		'The Floor Will Be Lava'
 	];
 
 	const components = [];
