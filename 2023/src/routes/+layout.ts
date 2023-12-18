@@ -15,7 +15,9 @@ export async function load({ params }) {
 		'Point of Incidence',
 		'Parabolic Reflector Dish',
 		'Lens Library',
-		'The Floor Will Be Lava'
+		'The Floor Will Be Lava',
+		'Clumsy Crucible',
+		'Lavaduct Lagoon'
 	];
 
 	const components = [];
