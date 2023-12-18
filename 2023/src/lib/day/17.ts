@@ -1,3 +1,5 @@
+import {n} from "vitest/dist/types-198fd1d9";
+
 export function part1(raw_input: string): number {
 	const grid: number[][] = raw_input
 		.trim()
@@ -56,17 +58,13 @@ class Location {
 		return grid[this.y][this.x];
 	}
 
-	neighbors(grid: number[][]): Array<[Location, Direction]> {
-		const valid_neighbors: Array<[Location, Direction]> = [
-			[new Location(this.x, this.y - 1), 'N'],
-			[new Location(this.x, this.y + 1), 'S'],
-			[new Location(this.x + 1, this.y), 'E'],
-			[new Location(this.x - 1, this.y), 'W'],
-		].filter(([l, d]: [Location, Direction]) => {
-			return l.y >= 0 && l.y < grid.length && l.x >= 0 && l.x < grid[0].length;
-		});
-
-		return valid_neighbors;
+	neighbor(direction: Direction): Location {
+		switch (direction) {
+			case "N": return new Location(this.x, this.y - 1);
+			case "S": return new Location(this.x, this.y + 1);
+			case "E": return new Location(this.x + 1, this.y);
+			case "W": return new Location(this.x - 1, this.y);
+		}
 	}
 
 	static build_key(x: number, y: number): string {
@@ -79,10 +77,45 @@ class Location {
 	}
 }
 
-interface ReachedFrom {
-	node: Location;
-	direction: Direction;
-	steps: number;
+class Node {
+	public readonly location: Location;
+	public readonly direction: Direction;
+	public readonly steps: number;
+	public readonly cost: number;
+
+	constructor(location: Location, direction: Direction, steps: number, cost: number) {
+		this.location = location;
+		this.direction = direction;
+		this.steps = steps;
+		this.cost = cost
+	}
+
+	neighbors(grid: number[][]): Node[] {
+		const valid_neighbors = this.valid_directions().map((direction: Direction) => {
+			const steps = this.direction == direction ? this.steps + 1 : 0;
+			return new Node(this.location.neighbor(direction), direction, steps, this.location.grid_value(grid));
+		}).filter(node => {
+			const l = node.location;
+			return node.steps < 3 && l.y >= 0 && l.y < grid.length && l.x >= 0 && l.x < grid[0].length;
+		});
+
+		return valid_neighbors;
+	}
+
+	valid_directions(): Direction[] {
+		switch (this.direction) {
+			case 'N': return ['N', 'E', 'W'];
+			case 'S': return ['S', 'E', 'W'];
+			case 'E': return ['N', 'S', 'E'];
+			case 'W': return ['N', 'S', 'W'];
+		}
+	}
+}
+
+function build_graph(grid: number[][]): Map<string, ReachedFrom> {
+	const start = new Location(0, 0);
+
+	start.neighbors(grid)
 }
 
 function dijkstra(grid: number[][], start: Location): Map<string, ReachedFrom> {
@@ -91,8 +124,7 @@ function dijkstra(grid: number[][], start: Location): Map<string, ReachedFrom> {
 	const distances: Map<string, number> = new Map();
 	grid.forEach((row, y) => row.forEach((_, x) => distances.set(Location.build_key(x, y), Infinity)));
 
-	const unvisited: Set<string> = new Set();
-	grid.forEach((row, y) => row.forEach((_, x) => unvisited.add(Location.build_key(x, y))));
+	const unvisited: Set<string> = new Set([start.key]);
 
 	distances.set(start.key, 0);
 
@@ -102,11 +134,12 @@ function dijkstra(grid: number[][], start: Location): Map<string, ReachedFrom> {
 
 		const node_reached_from = reached_from.get(current.key)
 
-		for (const [neighbor, direction] of current.neighbors(grid).filter(([neighbor, ]) => unvisited.has(neighbor.key))) {
+		for (const [neighbor, direction] of current.neighbors(grid)) {
 			const distance_to_neighbor = distances.get(current.key) + neighbor.grid_value(grid);
-			const steps = direction == node_reached_from.direction ? node_reached_from.steps + 1 : 1
+			const steps = direction == node_reached_from.direction ? node_reached_from.steps + 1 : 0
 
-			if (steps <= 3 && distance_to_neighbor < distances.get(neighbor.key)) {
+			if (steps < 3 && distance_to_neighbor < distances.get(neighbor.key)) {
+				unvisited.add(neighbor.key);
 				distances.set(neighbor.key, distance_to_neighbor);
 				reached_from.set(neighbor.key, { node: current, direction, steps });
 			}

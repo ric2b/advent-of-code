@@ -52,6 +52,18 @@ describe('part 1', () => {
 			34465
         `.replace(/^[ \t]+/gm, '');
 
+		// s 134
+		// 321 4
+		//     2
+		//     5
+		// = 23
+
+		// s
+		// 321
+		//   552
+		//     5
+		// = 23
+
 		expect(part1(raw_input)).toBe(22);
 	});
 
@@ -90,7 +102,7 @@ describe('part 1', () => {
 		expect(part1(raw_input)).toBe(43);
 	});
 
-	it('calculates the right value for custom example 2', () => {
+	it('calculates the right value for custom example 2a', () => {
 		const raw_input = `
 			11111
 			29991
@@ -99,6 +111,28 @@ describe('part 1', () => {
         `.replace(/^[ \t]+/gm, '');
 
 		expect(part1(raw_input)).toBe(9);
+	});
+
+	it('calculates the right value for custom example 2b', () => {
+		const raw_input = `
+			112999
+			911111
+        `.replace(/^[ \t]+/gm, '');
+
+		// 112
+		//   1111
+		// = 7
+
+		expect(part1(raw_input)).toBe(7);
+	});
+
+	it('calculates the right value for custom example 2b', () => {
+		const raw_input = `
+			9999999
+			1111111
+        `.replace(/^[ \t]+/gm, '');
+
+		expect(part1(raw_input)).toBe(11); // Is wrong, has to be higher
 	});
 
 	it('calculates the right value for the input', () => {
