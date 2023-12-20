@@ -62,10 +62,107 @@ describe('part 2', () => {
 		expect(part2(raw_input)).toBe(167409079868000);
 	});
 
+	it('calculates the right value for custom example a1', () => {
+		const raw_input = `
+			in{x<2000:pa,R}
+			pa{x<1000:pb,R}
+			pb{x<500:pc,R}
+			pc{x<100:pd,R}
+			pd{x<2:A,R}
+
+			{x=1,m=2,a=3,s=4}
+		`.replace(/^[ \t]+/gm, '');
+
+		expect(part2(raw_input)).toBe(1 * 4000 * 4000 * 4000);
+	});
+
+	it('calculates the right value for custom example a2', () => {
+		const raw_input = `
+			in{x<1351:px,R}
+			px{m<2006:k,R}
+			k{a>2090:qkq,R}
+			qkq{s<1416:A,R}
+			
+			{x=1,m=2,a=3,s=4}
+		`.replace(/^[ \t]+/gm, '');
+
+		expect(part2(raw_input)).toBe(1350 * 2005 * (4000 - 2090) * 1415);
+	});
+
+	it('calculates the right value for custom example 1a', () => {
+		const raw_input = `
+			in{x}
+			x{x<1:m,R}
+			m{m<1:a,R}
+			a{a<1:s,R}
+			s{s<1:A,R}
+			
+			{x=1,m=2,a=3,s=4}
+		`.replace(/^[ \t]+/gm, '');
+
+		expect(part2(raw_input)).toBe(0);
+	});
+
+	it('calculates the right value for custom example 1', () => {
+		const raw_input = `
+			in{x}
+			x{x<2:m,R}
+			m{m<2:a,R}
+			a{a<2:s,R}
+			s{s<2:A,R}
+			
+			{x=1,m=2,a=3,s=4}
+		`.replace(/^[ \t]+/gm, '');
+
+		expect(part2(raw_input)).toBe(1);
+	});
+
+	it('calculates the right value for custom example 2', () => {
+		const raw_input = `
+			in{x}
+			x{x<3:m,R}
+			m{m<3:a,R}
+			a{a<3:s,R}
+			s{s<3:A,R}
+			
+			{x=1,m=2,a=3,s=4}
+		`.replace(/^[ \t]+/gm, '');
+
+		expect(part2(raw_input)).toBe(2*2*2*2);
+	});
+
+	it('calculates the right value for custom example 3', () => {
+		const raw_input = `
+			in{x}
+			x{x>3999:m,R}
+			m{m>3999:a,R}
+			a{a>3999:s,R}
+			s{s>3999:A,R}
+			
+			{x=1,m=2,a=3,s=4}
+		`.replace(/^[ \t]+/gm, '');
+
+		expect(part2(raw_input)).toBe(1);
+	});
+
+	it('calculates the right value for custom example 4', () => {
+		const raw_input = `
+			in{x}
+			x{x>4000:m,R}
+			m{m>4000:a,R}
+			a{a>4000:s,R}
+			s{s>4000:A,R}
+			
+			{x=1,m=2,a=3,s=4}
+		`.replace(/^[ \t]+/gm, '');
+
+		expect(part2(raw_input)).toBe(0);
+	});
+
 	it('calculates the right value for the input', () => {
 		const filePath = path.resolve(process.cwd(), 'static', 'inputs', '19.txt');
 		const raw_input = readFileSync(filePath, 'utf8');
 
-		expect(part2(raw_input)).toBe(78242031808225);
+		expect(part2(raw_input)).toBe(132392981697081);
 	});
 });

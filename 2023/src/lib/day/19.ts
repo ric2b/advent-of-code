@@ -5,14 +5,10 @@ interface Rule {
 	match_result: Status | WorkflowId;
 }
 
-interface Condition {
-	type: Type;
-	range: Range;
-}
-
 type Rating = Map<Type, number>
 type Status = 'A'|'R';
 type Type = 'x'|'m'|'a'|'s';
+type Operator = '<'|'>';
 
 export function part1(raw_input: string): number {
 	const [raw_workflows, raw_ratings] = raw_input.trim().split('\n\n')
@@ -40,11 +36,7 @@ export function part2(raw_input: string): number {
 	const workflow_graph: Map<WorkflowId, Node> = new Map();
 	workflows.forEach((rules, workflow_id) => {
 		const workflow_node: Node = rules.reverse().reduce((else_node: Node | Status | WorkflowId, rule: Rule) => {
-			return new Node(
-				rule.condition ? rule.condition : { x: new Range(1, 4001) },
-				rule.match_result,
-				else_node
-			)
+			return new Node(rule.condition, rule.match_result, else_node)
 		}, 'R')
 
 		workflow_graph.set(workflow_id, workflow_node);
@@ -53,19 +45,7 @@ export function part2(raw_input: string): number {
 	const root = workflow_graph.get('in');
 	const valid_ratings: RatingRanges[] =  combinations(workflow_graph, root);
 
-	// px{a<2006:qkq,m>2090:A,rfg}
-	// pv{a>1716:R,A}
-	// lnx{m>1548:A,A}
-	// rfg{s<537:gd,x>2440:R,A}
-	// qs{s>3448:A,lnx}
-	// qkq{x<1416:A,crn}
-	// crn{x>2662:A,R}
-	// in{s<1351:px,qqz}
-	// qqz{s>2770:qs,m<1801:hdj,R}
-	// gd{a>3333:R,R}
-	// hdj{m>838:A,pv}
-
-	return 2;
+	return valid_ratings.map(rr => rr.volume()).reduce((a, b) => a + b, 0);
 }
 
 function combinations(workflow_graph: Map<WorkflowId, Node>, root: Node | Status | WorkflowId): RatingRanges[] {
@@ -73,46 +53,53 @@ function combinations(workflow_graph: Map<WorkflowId, Node>, root: Node | Status
 		return [new RatingRanges()];
 	} else if (root === 'R') {
 		return [];
-	} else if (typeof root === 'string') {
+	}
+
+	if (typeof root === 'string') {
 		root = workflow_graph.get(root);
 	}
 
-	const condition_ranges = new RatingRanges(root.condition);
-	return [
-		combinations(workflow_graph, root.match_node).flatMap(r => condition_ranges.combine(r)),
-		combinations(workflow_graph, root.else_node).flatMap(r => condition_ranges.invert().combine(r)),
-	].flat();
+	if (root.condition == undefined) {
+		return combinations(workflow_graph, root.match_node);
+	}
+
+	const match_combinations = combinations(workflow_graph, root.match_node).flatMap(rr => rr.section_matching(root.condition));
+	const else_combinations = combinations(workflow_graph, root.else_node).flatMap(rr => rr.section_matching(root.condition.invert()));
+
+	return match_combinations.concat(...else_combinations).filter(rr => rr.volume() > 0);
 }
 
 class RatingRanges {
-	public readonly x: Range[];
-	public readonly m: Range[];
-	public readonly a: Range[];
-	public readonly s: Range[];
+	public readonly x: Range;
+	public readonly m: Range;
+	public readonly a: Range;
+	public readonly s: Range;
 
 	constructor(ranges = {}) {
-		this.x = ranges.x != undefined ? [ranges.x] : [new Range(1, 4001)];
-		this.m = ranges.m != undefined ? [ranges.m] : [new Range(1, 4001)];
-		this.a = ranges.a != undefined ? [ranges.a] : [new Range(1, 4001)];
-		this.s = ranges.s != undefined ? [ranges.s] : [new Range(1, 4001)];
+		this.x = ranges.x != undefined ? ranges.x : new Range(1, 4001);
+		this.m = ranges.m != undefined ? ranges.m : new Range(1, 4001);
+		this.a = ranges.a != undefined ? ranges.a : new Range(1, 4001);
+		this.s = ranges.s != undefined ? ranges.s : new Range(1, 4001);
 	}
 
-	combine(other: RatingRanges): RatingRanges {
-		return new RatingRanges({
-			x: this.x.flatMap(r => other.x.map(o => r.intersect(o))),
-			m: this.m.flatMap(r => other.m.map(o => r.intersect(o))),
-			a: this.a.flatMap(r => other.a.map(o => r.intersect(o))),
-			s: this.s.flatMap(r => other.s.map(o => r.intersect(o))),
-		})
+	section_matching(condition: Condition): RatingRanges {
+		const split_axis_type = condition.type;
+		const split_axis_range = this[split_axis_type];
+
+		const matching_range: Range = split_axis_range.section_matching(condition);
+
+		const props = this.to_object();
+		props[split_axis_type] = matching_range;
+
+		return new RatingRanges(props);
 	}
 
-	invert(): RatingRanges {
-		return new RatingRanges({
-			x: this.x.map(r => r.invert()),
-			m: this.m.map(r => r.invert()),
-			a: this.a.map(r => r.invert()),
-			s: this.s.map(r => r.invert()),
-		})
+	to_object() {
+		return { x: this.x, m: this.m, a: this.a, s: this.s };
+	}
+
+	volume(): number {
+		return this.x.length() * this.m.length() * this.a.length() * this.s.length();
 	}
 }
 
@@ -133,30 +120,60 @@ class Range {
 	public readonly end: number;
 
 	constructor(start: number, end: number) {
-		this.start = Math.min(start, end);
-		this.end = Math.max(start, end);
+		this.start = Math.max(1, Math.min(start, end));
+		this.end = Math.min(4001, Math.max(start, end));
 	}
 
-	include(x: number): boolean {
-		return this.start <= x && x < this.end;
-	}
-
-	intersect(other: Range): Range {
-		if (this.start <= other.end && other.start <= this.end) {
-			return new Range(Math.max(this.start, other.start), Math.min(this.end, other.end));
-		} else {
-			return new Range(0, 0);
+	section_matching(condition: Condition): Range {
+		let new_range;
+		switch (condition.operator) {
+			case '<':
+				new_range = new Range(Math.min(this.start, condition.value - 1), Math.min(this.end, condition.value));
+				return new_range;
+			case '>':
+				new_range = new Range(Math.max(this.start, condition.value + 1), Math.max(this.end, condition.value));
+				return new_range;
+			default:
+				throw new Error('bug');
 		}
-	}
-	invert(): Range[] {
-		return [
-			new Range(1, this.start),
-			new Range(this.end, 4001),
-		].filter(r => r.length() > 0);
 	}
 
 	length(): number {
 		return this.end - this.start;
+	}
+}
+
+class Condition {
+	public readonly type: Type;
+	public readonly operator: Operator;
+	public readonly value: number;
+
+	constructor(type: Type, operator: Operator, value: number) {
+		this.type = type;
+		this.operator = operator;
+		this.value = value;
+	}
+
+	matches(value: number): boolean {
+		switch (this.operator) {
+			case "<":
+				return value < this.value;
+			case ">":
+				return value > this.value;
+			default:
+				throw new Error('bug');
+		}
+	}
+
+	invert(): Condition {
+		switch (this.operator) {
+			case '<':
+				return new Condition(this.type, '>', this.value - 1);
+			case '>':
+				return new Condition(this.type, '<', this.value + 1);
+			default:
+				throw new Error('bug');
+		}
 	}
 }
 
@@ -167,7 +184,8 @@ function apply_workflow(workflows: Map<string, Rule[]>, rating: Rating, workflow
 		if (rule.condition == undefined) {
 			result = rule.match_result;
 		} else {
-			if (rule.condition.range.include(rating.get(rule.condition.type))) {
+			const rating_value = rating.get(rule.condition.type);
+			if (rule.condition.matches(rating_value)) {
 				result = rule.match_result;
 			}
 		}
@@ -194,11 +212,8 @@ function parse_workflows(raw_workflows: string): Map<WorkflowId, Rule[]> {
 			const [,, type, comparison, raw_value, match_result] = rule_regex.exec(raw_rule);
 
 			if (type != undefined) {
-				const value = Number(raw_value);
-				const range = comparison == '<' ? new Range(1, value) : new Range(value + 1, 4000);
-
 				return {
-					condition: { type, range },
+					condition: new Condition(type, comparison, Number(raw_value)),
 					match_result,
 				};
 			} else {
