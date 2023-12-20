@@ -18,6 +18,33 @@ export function part1(raw_input: string): number {
 }
 
 export function part2(raw_input: string): number {
+	const modules: Map<string, Module> = parse_modules(raw_input);
+
+	console.log('https://mermaid.live/edit')
+
+	console.log('flowchart TD')
+	modules.forEach((module, module_id) => {
+		module.sinks.forEach(sink_id => {
+			const sink = modules.get(sink_id);
+			const sink_type = sink.constructor.name;
+			if (sink_type === 'FlipFlop') {
+				console.log(`${module_id} --> ${sink_id}{{${sink_id}}}`)
+			} else if(sink_type === 'NAnd') {
+				// if(sink.sinks.length > 1) {
+					console.log(`${module_id} --> ${sink_id}[\\!${sink_id}/]`)
+				// } else {
+				// 	console.log(`${module_id} --> ${sink_id}>!${sink_id}]`)
+				// }
+			} else {
+				if (sink?.sinks.length > 0) {
+					console.log(`${module_id} --> ${sink_id}([${sink_id}])`)
+				} else {
+					console.log(`${module_id} --> ${sink_id}((${sink_id}))`)
+				}
+			}
+		});
+	});
+
 	return 2;
 }
 

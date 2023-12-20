@@ -52,9 +52,25 @@ describe('part 1', () => {
 });
 
 describe('part 2', () => {
-	it('calculates the right value for the example', () => {
+	it('calculates the right value for example 1', () => {
 		const raw_input = `
+			broadcaster -> a, b, c
+			%a -> b
+			%b -> c
+			%c -> inv
+			&inv -> a
+		`.replace(/^[ \t]+/gm, '');
 
+		expect(part2(raw_input)).toBe(167409079868000);
+	});
+
+	it('calculates the right value for example 2', () => {
+		const raw_input = `
+			broadcaster -> a
+			%a -> inv, con
+			&inv -> b
+			%b -> con
+			&con -> output
 		`.replace(/^[ \t]+/gm, '');
 
 		expect(part2(raw_input)).toBe(167409079868000);
