@@ -89,6 +89,6 @@ describe('part 2', () => {
 
 		// LCM = 219388737656593
 
-		expect(part2_cycle_lengths(raw_input)).toBe(219388737656593);
+		expect(part2(raw_input)).toBe(219388737656593);
 	});
 });

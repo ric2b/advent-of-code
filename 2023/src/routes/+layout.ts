@@ -17,7 +17,9 @@ export async function load({ params }) {
 		'Lens Library',
 		'The Floor Will Be Lava',
 		'Clumsy Crucible',
-		'Lavaduct Lagoon'
+		'Lavaduct Lagoon',
+		'Aplenty',
+		'Pulse Propagation'
 	];
 
 	const components = [];
