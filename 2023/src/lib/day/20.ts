@@ -17,12 +17,13 @@ export function part1(raw_input: string): number {
 	return low_pulse_count * high_pulse_count;
 }
 
-export function part2(raw_input: string): number {
+export function part2_render(raw_input: string): number {
 	const modules: Map<string, Module> = parse_modules(raw_input);
 
 	console.log('https://mermaid.live/edit')
 
 	console.log('flowchart TD')
+	console.log('button --> broadcaster([broadcaster])')
 	modules.forEach((module, module_id) => {
 		module.sinks.forEach(sink_id => {
 			const sink = modules.get(sink_id);
@@ -45,7 +46,26 @@ export function part2(raw_input: string): number {
 		});
 	});
 
-	return 2;
+	return 1;
+}
+
+export function part2_cycle_lengths(raw_input: string, sink_ids: string[]): number {
+	const modules: Map<string, Module> = parse_modules(raw_input);
+	const button: Button = new Button(modules.get('broadcaster'));
+
+	for (let i = 0; i < 10000; i++) {
+		// console.log(`cycle: ${i}`);
+
+		let queue: string[] = button.pulse();
+		while (queue.length > 0) {
+			queue = queue.flatMap(module_id => modules.get(module_id)?.pulse(i));
+		}
+	}
+
+	const low_pulse_count = [...modules.values()].reduce((low_pulses, module) => low_pulses + module.low_pulses, 0)
+	const high_pulse_count = [...modules.values()].reduce((high_pulses, module) => high_pulses + module.high_pulses, 0)
+
+	return low_pulse_count * high_pulse_count;
 }
 
 function parse_modules(raw_input: string): Map<string, Module> {
@@ -91,7 +111,7 @@ class Button {
 	}
 
 	pulse() {
-		console.log(`button signaling broadcaster with false`);
+		// console.log(`button signaling broadcaster with false`);
 		this.broadcaster_module.signal('button', false);
 		return ['broadcaster'];
 	}
@@ -122,18 +142,18 @@ class Module {
 		this.signals.push([module_id, value]);
 	}
 
-	generate_pulse(): boolean | undefined {
+	generate_pulse(i?: number): boolean | undefined {
 		throw new Error('Not implemented');
 	}
 
-	pulse(): string[] {
-		const value = this.generate_pulse();
+	pulse(i?: number): string[] {
+		const value = this.generate_pulse(i);
 		if (value === undefined) {
 			return [];
 		}
 
 		this.sinks.forEach(sink => {
-			console.log(`${this.module_id} signaling ${sink} with ${value}`);
+			// console.log(`${this.module_id} signaling ${sink} with ${value}`);
 			this.modules.get(sink)?.signal(this.module_id, value);
 		});
 
@@ -146,7 +166,7 @@ class Broadcaster extends Module {
 		super(modules, 'broadcaster', sinks);
 	}
 
-	generate_pulse(): boolean | undefined {
+	generate_pulse(i?: number): boolean | undefined {
 		if (this.signals.length == 0) {
 			return undefined;
 		}
@@ -159,7 +179,7 @@ class Broadcaster extends Module {
 class FlipFlop extends Module {
 	public state: boolean = false;
 
-	generate_pulse(): boolean | undefined {
+	generate_pulse(i?: number): boolean | undefined {
 		if (this.signals.length == 0) {
 			return undefined;
 		}
@@ -178,7 +198,7 @@ class FlipFlop extends Module {
 class NAnd extends Module {
 	public readonly last_signals_per_module: Map<string, boolean> = new Map();
 
-	generate_pulse(): boolean | undefined {
+	generate_pulse(i?: number): boolean | undefined {
 		if (this.signals.length == 0) {
 			return undefined;
 		}
@@ -193,6 +213,11 @@ class NAnd extends Module {
 		});
 
 		const value: boolean = ![...this.last_signals_per_module.values()].every((v: boolean) => v);
+
+		// if (value && ['ks', 'pm', 'dl', 'vk'].includes(this.module_id)) {
+		// if (value && this.module_id == 'vk') {
+		// 	console.log(`${this.module_id} going HIGH! on cycle ${i}`)
+		// }
 
 		return value;
 	}

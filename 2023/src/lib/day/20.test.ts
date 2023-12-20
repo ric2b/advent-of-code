@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import path from 'path';
 
-import { part1, part2 } from './20';
+import {part1, part2, part2_cycle_lengths, part2_render} from './20';
 
 describe('part 1', () => {
 	it('calculates the right value for example 1', () => {
@@ -61,7 +61,7 @@ describe('part 2', () => {
 			&inv -> a
 		`.replace(/^[ \t]+/gm, '');
 
-		expect(part2(raw_input)).toBe(167409079868000);
+		expect(part2_render(raw_input)).toBe(1);
 	});
 
 	it('calculates the right value for example 2', () => {
@@ -73,13 +73,22 @@ describe('part 2', () => {
 			&con -> output
 		`.replace(/^[ \t]+/gm, '');
 
-		expect(part2(raw_input)).toBe(167409079868000);
+		expect(part2_render(raw_input)).toBe(1);
 	});
 
 	it('calculates the right value for the input', () => {
 		const filePath = path.resolve(process.cwd(), 'static', 'inputs', '20.txt');
 		const raw_input = readFileSync(filePath, 'utf8');
 
-		expect(part2(raw_input)).toBe(78242031808225);
+		// for rx to go low: ks & pm & dl & vk all have to be high
+
+		// ks: cycle of 3917, first on at 3916
+		// pm: cycle of 3833, first on at 3832
+		// dl: cycle of 3769 , first on at 3768
+		// vk: cycle of 3877, first on at 3876
+
+		// LCM = 219388737656593
+
+		expect(part2_cycle_lengths(raw_input)).toBe(219388737656593);
 	});
 });
