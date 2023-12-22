@@ -44,8 +44,7 @@ function settle(falling_bricks: Brick[]): Brick[] {
 	const max_x = bricks.flatMap(brick => [brick.start.x, brick.end.x]).reduce((a, b) => Math.max(a, b));
 	const max_y = bricks.flatMap(brick => [brick.start.y, brick.end.y]).reduce((a, b) => Math.max(a, b));
 
-	// Last level could be a sorted collection for more fast. might not be enough if each point only has a few bricks...
-	const settled_xy_index: Brick[][][] = Array.from(Array(max_x + 1), () => Array.from(Array(max_y + 1), () => []));
+	const height_map: number[][] = Array.from(Array(max_x + 1), () => Array.from(Array(max_y + 1), () => 0));
 	const settled_bricks: Brick[] = [];
 
 	while (bricks.length > 0) {
@@ -54,16 +53,18 @@ function settle(falling_bricks: Brick[]): Brick[] {
 
 		for (const x of current_brick.x_range) {
 			for (const y of current_brick.y_range) {
-				const upper_brick: Brick = maxBy(settled_xy_index[x][y], brick => brick.top())
-				if (upper_brick != undefined) {
-					new_height_offset = Math.max(new_height_offset, upper_brick.top());
-				}
-
-				settled_xy_index[x][y].push(current_brick);
+				new_height_offset = Math.max(new_height_offset, height_map[x][y]);
 			}
 		}
 
 		current_brick.height_offset = new_height_offset;
+
+		for (const x of current_brick.x_range) {
+			for (const y of current_brick.y_range) {
+				height_map[x][y] = current_brick.top();
+			}
+		}
+
 		settled_bricks.unshift(current_brick);
 	}
 	return settled_bricks;

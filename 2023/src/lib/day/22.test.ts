@@ -5,7 +5,7 @@ import path from 'path';
 import {part1, part2} from './22';
 
 describe('part 1', () => {
-	it('calculates the right value for example 1', () => {
+	it('calculates the right value for example', () => {
 		const raw_input = `
 			1,0,1~1,2,1
 			0,0,2~2,0,2
@@ -17,6 +17,15 @@ describe('part 1', () => {
         `.replace(/^[ \t]+/gm, '');
 
 		expect(part1(raw_input)).toBe(5);
+	});
+
+	it('calculates the right value for example 1', () => {
+		// just Ken
+		const raw_input = `
+			0,0,1~0,0,1
+        `.replace(/^[ \t]+/gm, '');
+
+		expect(part1(raw_input)).toBe(1);
 	});
 
 	it('calculates the right value for example 2', () => {
