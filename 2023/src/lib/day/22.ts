@@ -1,5 +1,5 @@
 export function part1(raw_input: string, step_limit: number = 64): number {
-	const bricks: Brick[] = raw_input.trim().split('\n').map((line, i) => {
+	const bricks: Brick[] = raw_input.trim().split('\n').filter(l => l.trim() != '').map((line, i) => {
 		const [raw_start, raw_end] = line.split('~');
 		const [start, end] = line.split('~').map(coords => {
 			return new Location(...coords.split(',').map(Number));
@@ -14,23 +14,26 @@ export function part1(raw_input: string, step_limit: number = 64): number {
 	return can_be_disintegrated.length;
 }
 
-export function part2(raw_input: string, step_limit: number = 64): number {
+export function part2(raw_input: string): number {
 	return 2;
 }
 
 function can_disintegrate(settled_bricks: Brick[], brick: Brick): boolean {
-	const bricks_on_next_layer = settled_bricks.filter(other => other.height_offset == brick.top());
+	const bricks_supported = settled_bricks.filter(other => {
+		return other.height_offset == brick.top() && brick.overlap(other);
+	});
 
-	if (bricks_on_next_layer.length == 0) {
-		return true;
+	if (bricks_supported.length == 0) {
+		return true; // Not supporting anything
 	}
 
 	const other_bricks_ending_on_same_layer = settled_bricks.filter(other => {
-		return other.id != brick.id && other.top() == brick.top()
+		return other.id != brick.id && other.top() == brick.top();
 	});
 
-	return bricks_on_next_layer.some(top_brick => {
-		return other_bricks_ending_on_same_layer.some(support_brick => support_brick.overlap(top_brick));
+	// every supported brick must have at least one other brick supporting it
+	return bricks_supported.every(supported_brick => {
+		return other_bricks_ending_on_same_layer.some(support_brick => support_brick.overlap(supported_brick));
 	});
 }
 
@@ -41,8 +44,8 @@ function maxBy<T>(array: Array<T>, fn: (fn: T) => number): T | undefined {
 
 function settle(falling_bricks: Brick[]): Brick[] {
 	const bricks = falling_bricks.toSorted((a, b) => a.height_offset - b.height_offset);
-	const max_x = bricks.flatMap(brick => [brick.start.x, brick.end.x]).reduce((a, b) => Math.max(a, b));
-	const max_y = bricks.flatMap(brick => [brick.start.y, brick.end.y]).reduce((a, b) => Math.max(a, b));
+	const max_x = Math.max(...bricks.map(brick => brick.end.x));
+	const max_y = Math.max(...bricks.map(brick => brick.end.y));
 
 	const height_map: number[][] = Array.from(Array(max_x + 1), () => Array.from(Array(max_y + 1), () => 0));
 	const settled_bricks: Brick[] = [];
@@ -85,7 +88,7 @@ class Brick {
 
 	constructor(start: Location, end: Location, id: string) {
 		this.id = id;
-		// start.z is always <= end.z in the example and the input
+		// start.z is always <= end.z in the example and the input LIE
 		this.height_offset = Math.min(start.z, end.z);
 		this.height = 1 + Math.abs(end.z - start.z);
 
@@ -102,7 +105,7 @@ class Brick {
 	}
 
 	overlap(other: Brick): boolean {
-		return this.x_range.overlap(other.x_range) || this.y_range.overlap(other.y_range);
+		return this.x_range.overlap(other.x_range) && this.y_range.overlap(other.y_range);
 	}
 
 	volume(): number {
