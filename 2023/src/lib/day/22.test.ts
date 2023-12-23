@@ -337,6 +337,10 @@ describe('part 1', () => {
 
 describe('part 2', () => {
 	it('calculates the right value for example 1', () => {
+		// A supports B and C
+		// B and C support D and E
+		// D and E support F
+		// F supports G
 		const raw_input = `
 			1,0,1~1,2,1
 			0,0,2~2,0,2

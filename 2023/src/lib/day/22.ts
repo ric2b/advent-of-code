@@ -1,30 +1,46 @@
-export function part1(raw_input: string, step_limit: number = 64): number {
-	const bricks: Brick[] = raw_input.trim().split('\n').filter(l => l.trim() != '').map((line, i) => {
-		const [raw_start, raw_end] = line.split('~');
-		const [start, end] = line.split('~').map(coords => {
-			return new Location(...coords.split(',').map(Number));
-		})
-		return new Brick(start, end, i);
-	});
-
+export function part1(raw_input: string): number {
+	const bricks = parse_bricks(raw_input);
 	const settled_bricks = settle(bricks);
 
-	const can_be_disintegrated = settled_bricks.filter(brick => can_disintegrate(settled_bricks, brick));
+	const can_be_disintegrated = settled_bricks.filter(brick => fully_supports(settled_bricks, brick).length == 0);
 
 	return can_be_disintegrated.length;
 }
 
 export function part2(raw_input: string): number {
-	return 2;
+	const bricks = parse_bricks(raw_input);
+	const settled_bricks = settle(bricks).sort((a, b) => a.id - b.id);
+
+	const bricks_to_test = settled_bricks.filter(brick => fully_supports(settled_bricks, brick).length > 0);
+
+	let count = 0;
+	bricks_to_test.forEach(brick_to_test => {
+		const settled_bricks_without_test = settled_bricks.map(brick => brick.clone()).filter(brick => brick.id != brick_to_test.id);
+		const after_disintegrate = settle(settled_bricks_without_test);
+
+		count += after_disintegrate.filter(brick => brick.height_offset != settled_bricks[brick.id].height_offset).length;
+	})
+
+	return count;
 }
 
-function can_disintegrate(settled_bricks: Brick[], brick: Brick): boolean {
-	const bricks_supported = settled_bricks.filter(other => {
-		return other.height_offset == brick.top() && brick.overlap(other);
-	});
+function copy_array_of_arrays<T>(array: T[][]): T[][] {
+	return array.map(a => a.slice());
+}
+
+function supported_by(settled_bricks: Brick[], brick: Brick): Brick[] {
+	return settled_bricks.filter(other => brick.height_offset == other.top() && brick.overlap(other));
+}
+
+function partially_supports(settled_bricks: Brick[], brick: Brick): Brick[] {
+	return settled_bricks.filter(other => other.height_offset == brick.top() && brick.overlap(other));
+}
+
+function fully_supports(settled_bricks: Brick[], brick: Brick): Brick[] {
+	const bricks_supported = partially_supports(settled_bricks, brick);
 
 	if (bricks_supported.length == 0) {
-		return true; // Not supporting anything
+		return []; // Not supporting anything
 	}
 
 	const other_bricks_ending_on_same_layer = settled_bricks.filter(other => {
@@ -32,8 +48,8 @@ function can_disintegrate(settled_bricks: Brick[], brick: Brick): boolean {
 	});
 
 	// every supported brick must have at least one other brick supporting it
-	return bricks_supported.every(supported_brick => {
-		return other_bricks_ending_on_same_layer.some(support_brick => support_brick.overlap(supported_brick));
+	return bricks_supported.filter(supported_brick => {
+		return !other_bricks_ending_on_same_layer.some(support_brick => support_brick.overlap(supported_brick));
 	});
 }
 
@@ -86,9 +102,9 @@ class Brick {
 	public height_offset: number;
 	// public readonly key: string;
 
-	constructor(start: Location, end: Location, id: string) {
+	constructor(start: Location, end: Location, id: number) {
 		this.id = id;
-		// start.z is always <= end.z in the example and the input LIE
+
 		this.height_offset = Math.min(start.z, end.z);
 		this.height = 1 + Math.abs(end.z - start.z);
 
@@ -97,7 +113,12 @@ class Brick {
 
 		this.x_range = new Range(this.start.x, this.end.x);
 		this.y_range = new Range(this.start.y, this.end.y);
-		// this.key = Location.build_key(start, end);
+	}
+
+	clone(): Brick {
+		const clone = new Brick(this.start, this.end, this.id);
+		clone.height_offset = this.height_offset;
+		return clone;
 	}
 
 	top(): number {
@@ -164,4 +185,14 @@ class Range {
 	[Symbol.iterator]() {
 		return this.iterator();
 	}
+}
+
+function parse_bricks(raw_input: string): Brick[] {
+	return raw_input.trim().split('\n').filter(l => l.trim() != '').map((line, i) => {
+		const [raw_start, raw_end] = line.split('~');
+		const [start, end] = line.split('~').map(coords => {
+			return new Location(...coords.split(',').map(Number));
+		})
+		return new Brick(start, end, i);
+	});
 }

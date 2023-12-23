@@ -21,6 +21,7 @@ export async function load({ params }) {
 		'Aplenty',
 		'Pulse Propagation',
 		'Step Counter',
+		'Sand Slabs',
 	];
 
 	const components = [];
