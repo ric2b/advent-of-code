@@ -19,6 +19,23 @@ export function part2(raw_input: string): number {
 	return longest_path(graph, start, end);
 }
 
+export function visualization(raw_input: string): string[] {
+	const grid: string[][] = raw_input.trim().split('\n').map((line) => line.split(''));
+	const graph = new Graph(grid);
+
+	const mermaid = [];
+	// mermaid.push('https://mermaid.live/edit')
+
+	mermaid.push('flowchart TD')
+	for (const [node_key, edges] of graph.edges.entries()) {
+		for (const edge of edges) {
+			mermaid.push(`${node_key} -->|${edge.cost}| ${edge.node.key}([${edge.node.key}])`);
+		}
+	}
+
+	return mermaid;
+}
+
 function longest_path(graph: Graph, start: Node, end: Node, visited: Set<NodeId> = new Set()): number {
 	const costs_to_end: number[] = graph.edges.get(start.key)
 		.filter(edge => !visited.has(edge.node.key))
