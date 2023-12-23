@@ -67,6 +67,7 @@ class Graph {
 			this.edges.set(node.key, neighbors.map(n => ({ node: n, cost: 1 })));
 		}
 		this.compact();
+		this.remove_extra_edges_from_last_node(grid);
 	}
 
 	compact() {
@@ -91,6 +92,14 @@ class Graph {
 			}
 		}
 	}
+
+        remove_extra_edges_from_last_node(grid: number[][]) {
+            const end_key: string = `${grid[0].length-2},${grid.length-1}`;
+            const last_node: Node = this.edges.get(end_key).at(0).node;
+            const last_node_edges = this.edges.get(last_node.key);
+            this.edges.set(last_node.key, last_node_edges.filter(e => e.node.key == end_key));
+        }
+
 }
 
 class Location {

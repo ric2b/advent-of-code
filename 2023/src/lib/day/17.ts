@@ -1,5 +1,3 @@
-import {n} from "vitest/dist/types-198fd1d9";
-
 export function part1(raw_input: string): number {
 	const grid: number[][] = raw_input
 		.trim()
