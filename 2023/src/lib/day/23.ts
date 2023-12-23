@@ -1,95 +1,35 @@
 export function part1(raw_input: string): number {
 	const grid: string[][] = raw_input.trim().split('\n').map((line) => line.split(''));
 
-	const start = new Location(grid.at(0).findIndex(char => char == '.'), 0);
-	const end = new Location(grid.at(-1).findIndex(char => char == '.'), grid.length - 1);
-
-	return longest_path(grid, start, end);
-}
-
-export function part1graph(raw_input: string): number {
-	const grid: string[][] = raw_input.trim().split('\n').map((line) => line.split(''));
-
 	const graph = new Graph(grid, true);
-	graph.compact();
 
 	const start: Node = new Node(new Location(grid.at(0).findIndex(char => char == '.'), 0));
 	const end: Node = new Node(new Location(grid.at(-1).findIndex(char => char == '.'), grid.length - 1));
 
-	return longest_path_graph(graph, start, end);
+	return longest_path(graph, start, end);
 }
 
 export function part2(raw_input: string): number {
 	const grid: string[][] = raw_input.trim().split('\n').map((line) => line.split(''));
-
 	const graph = new Graph(grid);
-	graph.compact();
 
 	const start: Node = new Node(new Location(grid.at(0).findIndex(char => char == '.'), 0));
 	const end: Node = new Node(new Location(grid.at(-1).findIndex(char => char == '.'), grid.length - 1));
 
-	return longest_path_graph(graph, start, end);
+	return longest_path(graph, start, end);
 }
 
-function longest_path_graph(graph: Graph, start: Node, end: Node): number {
-	const cost: Map<string, number> = new Map([[start.key, 0]]);
-	const reached_from: ([NodeId, Set<NodeId>])[] = [[start.key, new Set()]];
-
-	while (reached_from.length > 0) {
-		const [current_node_key, path_node_keys] = reached_from.pop();
-
-		if (current_node_key == end.key) {
-			continue;
-		}
-
-		for (const edge of graph.edges.get(current_node_key)) {
-			if (path_node_keys.has(edge.node.key)) {
-				continue;
+function longest_path(graph: Graph, start: Node, end: Node, visited: Set<NodeId> = new Set()): number {
+	const costs_to_end: number[] = graph.edges.get(start.key)
+		.filter(edge => !visited.has(edge.node.key))
+		.map(edge => {
+			if (edge.node.key == end.key) {
+				return edge.cost;
 			}
+			return edge.cost + longest_path(graph, edge.node, end, new Set([...visited, edge.node.key]));
+		});
 
-			const neighbor_cost = cost.get(current_node_key) + edge.cost;
-
-			if (!cost.has(edge.node.key) || neighbor_cost > cost.get(edge.node.key)) {
-				cost.set(edge.node.key, neighbor_cost);
-
-				const neighbor_path = new Set([...path_node_keys, current_node_key]);
-				reached_from.unshift([edge.node.key, neighbor_path]);
-			}
-		}
-	}
-
-	return cost.get(end.key);
-}
-
-function longest_path(grid: string[][], start: Location, end: Location, slippery: boolean = true): number {
-	const cost: Map<string, number> = new Map([[start.key, 0]]);
-	const reached_from: ([string, string[]])[] = [[start.key, []]];
-
-	while (reached_from.length > 0) {
-		const [current_location_key, location_reached_from] = reached_from.pop();
-		const current_location = Location.from_key(current_location_key);
-
-		if (current_location_key == end.key) {
-			continue;
-		}
-
-		for (const neighbor of current_location.neighbors(grid, slippery)) {
-			const neighbor_cost = cost.get(current_location_key) + 1;
-
-			if (location_reached_from.includes(neighbor.key)) {
-				continue;
-			}
-
-			if (!cost.has(neighbor.key) || neighbor_cost > cost.get(neighbor.key)) {
-				cost.set(neighbor.key, neighbor_cost);
-
-				const neighbor_path = [...location_reached_from, neighbor.key];
-				reached_from.unshift([neighbor.key, neighbor_path]);
-			}
-		}
-	}
-
-	return cost.get(end.key);
+	return Math.max(...costs_to_end);
 }
 
 type Edge = { node: Node, cost: number };
@@ -126,6 +66,7 @@ class Graph {
 			const neighbors: Node[] = node.location.neighbors(grid, slippery).map(l => this.nodes.get(l.key));
 			this.edges.set(node.key, neighbors.map(n => ({ node: n, cost: 1 })));
 		}
+		this.compact();
 	}
 
 	compact() {
