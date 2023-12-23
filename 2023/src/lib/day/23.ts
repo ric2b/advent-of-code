@@ -26,12 +26,23 @@ export function visualization(raw_input: string): string[] {
 	const mermaid = [];
 	// mermaid.push('https://mermaid.live/edit')
 
-	mermaid.push('flowchart TD')
+	mermaid.push('flowchart TD');
+	mermaid.push('start --> 1,0');
+
 	for (const [node_key, edges] of graph.edges.entries()) {
 		for (const edge of edges) {
-			mermaid.push(`${node_key} -->|${edge.cost}| ${edge.node.key}([${edge.node.key}])`);
+			const node = graph.nodes.get(node_key);
+			const neighbor = edge.node;
+			const node_order = node.location.x * grid.length + node.location.y;
+			const neighbor_order = neighbor.location.x * grid.length + neighbor.location.y;
+
+			if (node_order < neighbor_order) {
+				mermaid.push(`${node.key} ---|${edge.cost}| ${neighbor.key}([${neighbor.key}])`);
+			}
 		}
 	}
+	mermaid.push('139,140 --> finish[finish]');
+
 
 	return mermaid;
 }
@@ -83,11 +94,11 @@ class Graph {
 			const neighbors: Node[] = node.location.neighbors(grid, slippery).map(l => this.nodes.get(l.key));
 			this.edges.set(node.key, neighbors.map(n => ({ node: n, cost: 1 })));
 		}
-		this.compact();
+		this.compact_straight_runs();
 		this.remove_extra_edges_from_last_node(grid);
 	}
 
-	compact() {
+	compact_straight_runs() {
 		for (const node_key of this.edges.keys()) {
 			const node_edges: Edge[] = this.edges.get(node_key);
 			if (node_edges.length === 2) {

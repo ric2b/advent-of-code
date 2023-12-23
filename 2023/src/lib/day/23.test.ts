@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import path from 'path';
 
-import {part1, part2} from './23';
+import {part1, part2, visualization} from './23';
 
 describe('part 1', () => {
 	it('calculates the right value for example', () => {
@@ -140,5 +140,15 @@ describe('part 2', () => {
 
 		// 5018 too low
 		expect(part2(raw_input)).toBe(6710);
+	});
+
+	it('calculates the visualization', () => {
+		const filePath = path.resolve(process.cwd(), 'static', 'inputs', '23.txt');
+		const raw_input = readFileSync(filePath, 'utf8');
+
+		const strings = visualization(raw_input);
+		console.log(strings.join('\n'));
+
+		expect(strings).toBeInstanceOf(Array);
 	});
 });
