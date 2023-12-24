@@ -22,7 +22,8 @@ export async function load({ params }) {
 		'Pulse Propagation',
 		'Step Counter',
 		'Sand Slabs',
-		'A Long Walk'
+		'A Long Walk',
+		'Never Tell Me The Odds'
 	];
 
 	const components = [];
