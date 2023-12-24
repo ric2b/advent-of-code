@@ -1,3 +1,5 @@
+import { init } from 'z3-solver';
+
 export function part1(raw_input: string, min: number = 200_000_000_000_000, max: number = 400_000_000_000_000): number {
 	const hailstones: Hailstone[] = raw_input.trim().split('\n').map((line, i) => {
 		const [x, y, z, dx, dy, dz] = line.match(/(-?\d+)/g).map(Number);
@@ -18,8 +20,33 @@ export function part1(raw_input: string, min: number = 200_000_000_000_000, max:
 	return count;
 }
 
-export function part2(raw_input: string): number {
-	return 2;
+export async function part2(raw_input: string): Promise<number> {
+	const hailstones: Hailstone[] = raw_input.trim().split('\n').map((line, i) => {
+		const [x, y, z, dx, dy, dz] = line.match(/(-?\d+)/g).map(Number);
+		return new Hailstone(new Vector(x, y, z), new Vector(dx, dy, dz), i);
+	});
+
+	// return solve(hailstones);
+	return solve(hailstones.slice(0,3)); // seems to be enough and runs much faster
+}
+
+async function solve(hailstones: Hailstone[]): Promise<number> {
+	const { Context } = await init();
+	const { Solver, Int } = new Context('main');
+	const solver = new Solver();
+
+	const [x, y, z] = [Int.const('x'), Int.const('y'), Int.const('z')];
+	const [dx, dy, dz] = [Int.const('dx'), Int.const('dy'), Int.const('dz')];
+	const t = hailstones.map((_, i) => Int.const(`t${i}`));
+
+	hailstones.forEach((h, i) => {
+		solver.add(t[i].mul(h.speed.x).add(h.position.x).sub(x).sub(t[i].mul(dx)).eq(0));
+		solver.add(t[i].mul(h.speed.y).add(h.position.y).sub(y).sub(t[i].mul(dy)).eq(0));
+		solver.add(t[i].mul(h.speed.z).add(h.position.z).sub(z).sub(t[i].mul(dz)).eq(0));
+	})
+
+	await solver.check();
+	return Number(solver.model().eval(x.add(y).add(z)).value());
 }
 
 function close_enough(a: number, b: number): boolean {
@@ -45,11 +72,6 @@ class Hailstone {
 		const b2 = other.position.y - a2 * other.position.x;
 
 		if (close_enough(a1, a2)) {
-			// if (close_enough(b1, b2)) {
-			// 	console.log('identical')
-			// 	return false;
-			// }
-			// console.log('parallel')
 			return false;
 		}
 
@@ -60,26 +82,6 @@ class Hailstone {
 
 		return in_future && box.includes(new Vector(cx, cy));
 	}
-
-	// px, py, vx, vy
-	// x(t) = t*vx + px
-	// y(t) = t*vy + py
-
-	// intercept: x1(t) = x2(t) && y1(t) == y2(t)
-	//
-	// t*vx1 + px1 = t*vx2 + px2
-	// t*(vx1-vx2) = px2 - px1
-	// t = (px2 - px1) / (vx1 - vx2)
-	//
-	// t*vy1 + py1 = t*vy2 + py2
-	// t*(vy1-vy2) = py2 - py1
-	// t = (py2 - py1) / (vy1 - vy2)
-
-	// m1x+ b1 = m2x + b2
-	// vx1 * x + px1 = vx2 * x + px2
-	// vx1 * x = vx2 * x + px2 - px1
-	// (vx1 - vx2) * x = (px2 - px1)
-	// x = (px2 - px1) / (vx1 - vx2)
 }
 
 class Box {
@@ -89,10 +91,6 @@ class Box {
 	constructor(start: Vector, end: Vector) {
 		this.x_range = new Range(start.x, end.x);
 		this.y_range = new Range(start.y, end.y);
-	}
-
-	overlap(other: Box) {
-		return this.x_range.overlap(other.x_range) && this.y_range.overlap(other.y_range);
 	}
 
 	includes(point: Vector): boolean {
@@ -131,28 +129,11 @@ class Range {
 class Vector {
 	public readonly x: number;
 	public readonly y: number;
-	// public readonly key: string;
+	public readonly z: number;
 
-	constructor(x: number, y: number) {
+	constructor(x: number, y: number, z: number = 0) {
 		this.x = x;
 		this.y = y;
-		// this.key = Vector.key(x, y);
+		this.z = z;
 	}
-
-	add(other: Vector): Vector {
-		return new Vector(this.x + other.x, this.y + other.y);
-	}
-
-	crossProduct(other: Vector): number {
-		return this.x * other.y - other.x * this.y;
-	}
-
-	// static key(x: number, y: number): string {
-	// 	return `${x},${y}`;
-	// }
-	//
-	// static from_key(key: string): Vector {
-	// 	const [x, y] = key.split(',').map(Number);
-	// 	return new Vector(x, y);
-	// }
 }

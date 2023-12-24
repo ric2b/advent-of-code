@@ -32,7 +32,8 @@
 		"typescript": "^5.0.0",
 		"vite": "^4.4.2",
 		"vitest": "^0.32.2",
-		"wrangler": "^3.18.0"
+		"wrangler": "^3.18.0",
+		"z3-solver": "^4.12.4"
 	},
 	"type": "module",
 	"volta": {
