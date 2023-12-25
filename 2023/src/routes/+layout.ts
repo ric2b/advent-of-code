@@ -23,7 +23,8 @@ export async function load({ params }) {
 		'Step Counter',
 		'Sand Slabs',
 		'A Long Walk',
-		'Never Tell Me The Odds'
+		'Never Tell Me The Odds',
+		'Snowverload'
 	];
 
 	const components = [];
