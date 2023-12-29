@@ -1,52 +1,66 @@
-import { init } from 'z3-solver';
+type NodeId = string;
+type Edge = [NodeId, NodeId];
 
 export function part1(raw_input: string): number {
-	const sources = ['kfr', 'vkp']
-	// https://www.dagitty.net/dags.html
-	const graph = []
-	graph.push('graph {');
-	raw_input.trim().split('\n').map((line, i) => {
-		const [src, dests] = line.split(':');
-		dests.match(/(\w+)/g).forEach(dest => {
-			graph.push(`${dest} -- ${src}`);
-		})
-	});
-	graph.push('}');
-	return graph.join('\n');
+	let edges: Edge[];
+	let score = -1;
+
+	do {
+		edges = raw_input.trim().split('\n').flatMap(line => {
+			const [node_a, raw_neighbors] = line.split(':');
+			return raw_neighbors.match(/(\w+)/g)?.map(node_b => {
+				return [node_a, node_b];
+			});
+		});
+
+		[score, edges] = karger(edges);
+	} while (edges.length != 3);
+
+	return score;
 }
 
-export function part2(raw_input: string): number {
-	const edges: Map<string, string[]> = new Map();
-	raw_input.trim().split('\n').map((line, i) => {
-		const [src, raw_dests] = line.split(':');
-		const dests = raw_dests.match(/(\w+)/g)
-		if (!edges.has(src)) {
-			edges.set(src, []);
-		}
-		edges.get(src).push(...dests);
+function karger(edges: Edge[]) {
+	const node_ids: Set<NodeId> = new Set(edges.flat());
+	let supernode_index = 0;
+	const supernode_children: Map<NodeId, NodeId[]> = new Map();
 
-		dests.forEach(dest => {
-			if (!edges.has(dest)) {
-				edges.set(dest, []);
-			}
-			edges.get(dest).push(src);
+	while (node_ids.size > 2) {
+		const contracted_edge_index = Math.floor(Math.random() * edges.length);
+
+		const contracted_edge: Edge = edges.at(contracted_edge_index);
+		const [contracted_node_a, contracted_node_b] = contracted_edge;
+		edges.splice(contracted_edge_index, 1);
+
+		const supernode_id = `supernode_${supernode_index}`;
+		node_ids.add(supernode_id);
+		contracted_edge.forEach(node_id => node_ids.delete(node_id));
+		supernode_children.set(supernode_id, [contracted_node_a, contracted_node_b]);
+		supernode_index++;
+
+		edges.forEach(edge => {
+			contracted_edge.forEach(contracted_node => {
+				const index = edge.indexOf(contracted_node);
+				if (index != -1) { edge[index] = supernode_id; }
+			})
 		})
-	});
 
-	return [count_connected(edges, 'kfr'), count_connected(edges, 'vkp')];
-}
-
-function count_connected(edges: Map<string, string[]>, start: string): number {
-	const unique_nodes: Set<string> = new Set();
-	const queue = [start];
-
-	while (queue.length > 0) {
-		const node = queue.shift();
-		unique_nodes.add(node);
-		if (edges.has(node)) {
-			queue.push(...edges.get(node).filter(dest => !unique_nodes.has(dest)));
-		}
+		edges = edges.filter(([a, b]) => a != b);
 	}
 
-	return unique_nodes.size;
+	const [supernode_a, supernode_b] = edges[0];
+
+	const a_children = children(supernode_children, supernode_a);
+	const b_children = children(supernode_children, supernode_b);
+	const score = a_children.length * b_children.length;
+	return [score, edges];
+}
+
+function children(supernode_children: Map<NodeId, NodeId[]>, supernode_id: NodeId): NodeId[] {
+	if (!supernode_children.has(supernode_id)) {
+		return [supernode_id];
+	}
+
+	return supernode_children.get(supernode_id).flatMap(node_id => {
+		return node_id.startsWith('supernode_') ? children(supernode_children, node_id) : [node_id];
+	});
 }
