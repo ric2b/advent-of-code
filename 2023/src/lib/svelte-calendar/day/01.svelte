@@ -34,7 +34,7 @@
 <ul>
     {#each tallies.entries() as [name, tally] (name)}
         <li>
-            <h3>{name}: {tally}</h3>
+            <h3 class="{tally >= 0 ? 'nice': 'naughty'}">{name}: {tally}</h3>
             <div>
                 <button on:click={() => change_by(name, +1)}>+</button>
                 <button on:click={() => change_by(name, -1)}>-</button>
@@ -42,3 +42,13 @@
         </li>
     {/each}
 </ul>
+
+<style>
+    .nice {
+        color: green;
+    }
+
+    .naughty {
+        color: red;
+    }
+</style>
