@@ -1,5 +1,3 @@
-import re
-
 example = '''\
 ....#.....
 .........#
@@ -16,53 +14,60 @@ example = '''\
 # input = example.splitlines()
 
 with open('inputs/day_06.txt', 'r') as input_file:
-    input = input_file.readlines()
+    input = input_file.read().splitlines()
 
 height = len(input)
 width = len(input[0])
 
-speed = (0, 0)
-visited_positions = set()
+directions = { '^': -1j, 'v': 1j, '<': -1, '>': 1 }
 
-for row in range(height):
-    for col in range(width):
-        if input[row][col] in ['^', 'v', '<', '>']:
-            visited_positions.add((row, col))
+def find_start(map):
+    for row in range(height):
+        for col in range(width):
+            cell = map[row][col]
+            if cell in ['^', 'v', '<', '>']:
+                speed = directions[cell]
 
-            match input[row][col]:
-                case '^':
-                    speed = (-1, 0)
-                case 'v':
-                    speed = (1, 0)
-                case '<':
-                    speed = (0, -1)
-                case '>':
-                    speed = (0, 1)
+                return ((row * 1j + col), speed)
 
-current_position = visited_positions.pop()
+starting_position, starting_speed = find_start(input)
 
-while True:
-    visited_positions.add(current_position)
-    print(current_position)
+def simulate_path(current_position, speed, map):
+    visited = set()
 
-    potential_position = current_position[0] + speed[0], current_position[1] + speed[1]
+    while (current_position, speed) not in visited:
+        visited.add((current_position, speed))
 
-    if  potential_position[0] >= height or potential_position[0] < 0 or potential_position[1] >= width or potential_position[1] < 0:
-        break
+        potential_position = current_position + speed
 
-    if input[potential_position[0]][potential_position[1]] == '#':
-        match speed:
-            case (-1, 0):
-                speed = (0, 1)
-            case (1, 0):
-                speed = (0, -1)
-            case (0, -1):
-                speed = (-1, 0)
-            case (0, 1):
-                speed = (1, 0)
-        current_position = current_position[0] + speed[0], current_position[1] + speed[1]
-    else:
-        current_position = potential_position
+        if not ((0 <= potential_position.imag < height) and (0 <= potential_position.real < width)):
+            return set([position for position, speed in visited])
 
-# pt1:
+        if map[int(potential_position.imag)][int(potential_position.real)] == '#':
+            speed *= 1j
+        else:
+            current_position = potential_position
+
+    return 'loop'
+
+
+# pt1: 5145
+visited_positions = simulate_path(starting_position, starting_speed, input)
 print(len(visited_positions))
+
+map = [list(s) for s in input]
+
+looping_possibilities = set()
+for position in visited_positions:
+    if position == starting_position:
+        continue
+
+    map[int(position.imag)][int(position.real)] = '#'
+
+    if simulate_path(starting_position, starting_speed, map) == 'loop':
+        looping_possibilities.add(position)
+
+    map[int(position.imag)][int(position.real)] = '.'
+
+# pt2: 1523
+print(len(looping_possibilities))
