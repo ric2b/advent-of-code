@@ -1,5 +1,4 @@
-import re
-from xml.etree.ElementInclude import include
+from functools import cmp_to_key
 
 example = '''\
 47|53
@@ -32,7 +31,7 @@ example = '''\
 97,13,75,29,47
 '''
 
-# input = example
+input = example
 
 with open('inputs/day_05.txt', 'r') as input_file:
     input = input_file.read()
@@ -47,7 +46,7 @@ for raw_dependency in raw_dependencies:
     dependency, page = map(int, raw_dependency.split('|'))
     dependencies[page] = dependencies.get(page, []) + [dependency]
 
-print_orders = [list(map(int, raw_print_order.split(','))) for raw_print_order in raw_print_orders]
+print_orders = [tuple(map(int, raw_print_order.split(','))) for raw_print_order in raw_print_orders]
 
 valid_print_orders = []
 for print_order in print_orders:
@@ -55,7 +54,7 @@ for print_order in print_orders:
     printed = set()
     for page in print_order:
         for dependency in dependencies.get(page, []):
-            if dependency  in print_order and dependency not in printed:
+            if dependency in print_order and dependency not in printed:
                 valid = False
                 break
 
@@ -69,3 +68,13 @@ def middle(list):
 
 # pt1: 5509
 print(sum(middle(print_order) for print_order in valid_print_orders))
+
+invalid_print_orders = set(print_orders) - set(valid_print_orders)
+
+fixed_print_orders = []
+for invalid_print_order in invalid_print_orders:
+    cmp = lambda a, b: 1 if b in dependencies.get(a, []) else -1
+    fixed_print_orders.append(sorted(invalid_print_order, key=cmp_to_key(cmp)))
+
+# pt2: 4407
+print(sum(middle(print_order) for print_order in fixed_print_orders))
