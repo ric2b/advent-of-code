@@ -1,5 +1,3 @@
-from operator import concat
-from typing import Concatenate
 example = '''\
 2333133121414131402
 '''
