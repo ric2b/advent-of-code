@@ -18,7 +18,6 @@ defmodule Advent2025.Day01 do
         "R" <> distance -> dial_position + String.to_integer(distance)
       end
       |> Integer.mod(dial_steps)
-      # |> IO.inspect(label: "new position")
     end)
     |> Enum.count(fn dial_position -> dial_position == 0 end)
   end
