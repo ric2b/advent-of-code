@@ -1,5 +1,6 @@
 defmodule Advent2025.Day01Test do
   use ExUnit.Case, async: true
+  use Advent2025.AdventCase
 
   alias Advent2025.Day01
 
@@ -22,15 +23,18 @@ defmodule Advent2025.Day01Test do
     end
 
     test "solves actual input" do
-      input = File.read!("priv/static/inputs/day_01.txt")
-      assert Day01.part1(input) == 1100
+      assert Day01.part1(@actual_input) == 1100
     end
   end
 
   describe "part2" do
-    @tag :skip
     test "solves sample input" do
-      assert Day01.part2(@sample_input) == 84
+      assert Day01.part2(@sample_input) == 6
+    end
+
+    # @tag :skip
+    test "solves actual input" do
+      assert Day01.part2(@actual_input) == 6358
     end
   end
 end
