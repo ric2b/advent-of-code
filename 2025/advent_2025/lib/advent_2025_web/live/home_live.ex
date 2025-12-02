@@ -44,10 +44,20 @@ defmodule Advent2025Web.HomeLive do
       day_padded = String.pad_leading(to_string(day), 2, "0")
       module_name = Module.concat([Advent2025, "Day#{day_padded}"])
 
+      available_parts =
+        if Code.ensure_loaded?(module_name) do
+          module_name.available_parts()
+        else
+          []
+        end
+
       %{
         number: day,
         padded: day_padded,
-        available: Code.ensure_loaded?(module_name)
+        available: Code.ensure_loaded?(module_name),
+        available_parts: available_parts,
+        has_part1: 1 in available_parts,
+        has_part2: 2 in available_parts
       }
     end)
   end
@@ -83,8 +93,16 @@ defmodule Advent2025Web.HomeLive do
                     <div class="text-sm font-semibold text-green-200 mb-1">DAY</div>
                     <div class="text-5xl font-bold text-white mb-2">{day.number}</div>
                     <div class="flex justify-center gap-1 mb-2">
-                      <.icon name="hero-star-solid" class="w-4 h-4 text-yellow-300" />
-                      <.icon name="hero-star-solid" class="w-4 h-4 text-yellow-300" />
+                      <%= if day.has_part1 do %>
+                        <.icon name="hero-star-solid" class="w-4 h-4 text-yellow-300" />
+                      <% else %>
+                        <.icon name="hero-star" class="w-4 h-4 text-yellow-300/50" />
+                      <% end %>
+                      <%= if day.has_part2 do %>
+                        <.icon name="hero-star-solid" class="w-4 h-4 text-yellow-300" />
+                      <% else %>
+                        <.icon name="hero-star" class="w-4 h-4 text-yellow-300/50" />
+                      <% end %>
                     </div>
                     <div class="text-xs text-green-100 opacity-0 group-hover:opacity-100 transition-opacity">
                       View Solution →
@@ -107,6 +125,8 @@ defmodule Advent2025Web.HomeLive do
           </div>
 
           <%!-- Stats Section --%>
+          <% total_parts = 24 %>
+          <% completed_parts = Enum.sum(Enum.map(@days, fn d -> length(d.available_parts) end)) %>
           <div class="mt-12 bg-slate-800/50 backdrop-blur-sm rounded-lg p-6 border border-purple-500/30 shadow-xl max-w-2xl mx-auto">
             <h3 class="text-xl font-semibold text-white mb-4 text-center flex items-center justify-center gap-2">
               <.icon name="hero-chart-bar" class="w-6 h-6 text-purple-400" />
@@ -114,20 +134,20 @@ defmodule Advent2025Web.HomeLive do
             </h3>
             <div class="flex justify-around">
               <div class="text-center">
-                <div class="text-4xl font-bold text-green-400">
-                  {Enum.count(@days, & &1.available)}
+                <div class="text-4xl font-bold text-yellow-400">
+                  {completed_parts}
                 </div>
-                <div class="text-gray-400 text-sm mt-1">Completed</div>
+                <div class="text-gray-400 text-sm mt-1">Stars Earned</div>
               </div>
               <div class="text-center">
-                <div class="text-4xl font-bold text-yellow-400">
-                  {Enum.count(@days, &(not &1.available))}
+                <div class="text-4xl font-bold text-gray-500">
+                  {total_parts - completed_parts}
                 </div>
-                <div class="text-gray-400 text-sm mt-1">Remaining</div>
+                <div class="text-gray-400 text-sm mt-1">Stars Remaining</div>
               </div>
               <div class="text-center">
                 <div class="text-4xl font-bold text-purple-400">
-                  {round(Enum.count(@days, & &1.available) / 12 * 100)}%
+                  {round(completed_parts / total_parts * 100)}%
                 </div>
                 <div class="text-gray-400 text-sm mt-1">Progress</div>
               </div>

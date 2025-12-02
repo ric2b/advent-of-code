@@ -4,6 +4,12 @@ defmodule Advent2025.Day01 do
   """
 
   @doc """
+  Returns which parts are available/implemented for this day.
+  Returns a list like [], [1], or [1, 2].
+  """
+  def available_parts, do: [1, 2]
+
+  @doc """
   Returns the example input for the given part (1 or 2).
   """
   def example_input(_part) do

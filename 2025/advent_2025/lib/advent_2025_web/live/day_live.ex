@@ -15,11 +15,16 @@ defmodule Advent2025Web.DayLive do
 
     case module do
       {:ok, day_module} ->
+        available_parts = day_module.available_parts()
+
         socket =
           socket
           |> assign(:day, day)
           |> assign(:day_number, day_number)
           |> assign(:day_module, day_module)
+          |> assign(:available_parts, available_parts)
+          |> assign(:has_part1, 1 in available_parts)
+          |> assign(:has_part2, 2 in available_parts)
           |> assign(:has_previous, has_previous)
           |> assign(:has_next, has_next)
           |> assign(:input, get_default_input(day_module))
@@ -34,6 +39,9 @@ defmodule Advent2025Web.DayLive do
           |> assign(:day, day)
           |> assign(:day_number, day_number)
           |> assign(:day_module, nil)
+          |> assign(:available_parts, [])
+          |> assign(:has_part1, false)
+          |> assign(:has_part2, false)
           |> assign(:has_previous, has_previous)
           |> assign(:has_next, has_next)
           |> assign(:input, @default_input)
@@ -73,21 +81,30 @@ defmodule Advent2025Web.DayLive do
 
       day_module ->
         input = socket.assigns.input
+        available_parts = socket.assigns.available_parts
 
         {part1_time, part1_result} =
-          try do
-            :timer.tc(fn -> day_module.part1(input) end)
-          rescue
-            error ->
-              {0, "Error: #{Exception.message(error)}"}
+          if 1 in available_parts do
+            try do
+              :timer.tc(fn -> day_module.part1(input) end)
+            rescue
+              error ->
+                {0, "Error: #{Exception.message(error)}"}
+            end
+          else
+            {0, "N/A"}
           end
 
         {part2_time, part2_result} =
-          try do
-            :timer.tc(fn -> day_module.part2(input) end)
-          rescue
-            error ->
-              {0, "Error: #{Exception.message(error)}"}
+          if 2 in available_parts do
+            try do
+              :timer.tc(fn -> day_module.part2(input) end)
+            rescue
+              error ->
+                {0, "Error: #{Exception.message(error)}"}
+            end
+          else
+            {0, "N/A"}
           end
 
         socket
@@ -133,6 +150,18 @@ defmodule Advent2025Web.DayLive do
             <h2 class="text-3xl font-semibold text-green-400 mb-2">
               Day {@day_number}
             </h2>
+            <div class="flex justify-center gap-2 mb-2">
+              <%= if @has_part1 do %>
+                <.icon name="hero-star-solid" class="w-6 h-6 text-yellow-400" />
+              <% else %>
+                <.icon name="hero-star" class="w-6 h-6 text-yellow-400/40" />
+              <% end %>
+              <%= if @has_part2 do %>
+                <.icon name="hero-star-solid" class="w-6 h-6 text-yellow-400" />
+              <% else %>
+                <.icon name="hero-star" class="w-6 h-6 text-yellow-400/40" />
+              <% end %>
+            </div>
             <p class="text-gray-300 text-lg">
               Solution Viewer
             </p>
@@ -210,42 +239,63 @@ defmodule Advent2025Web.DayLive do
               <%!-- Results Section --%>
               <div class="space-y-4">
                 <%!-- Part 1 Result --%>
-                <div class="bg-slate-800/50 backdrop-blur-sm rounded-lg p-6 border border-green-500/30 shadow-xl">
+                <div class={[
+                  "bg-slate-800/50 backdrop-blur-sm rounded-lg p-6 shadow-xl",
+                  if(@has_part1, do: "border border-green-500/30", else: "border border-slate-700/30 opacity-50")
+                ]}>
                   <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                    <.icon name="hero-star-solid" class="w-6 h-6 text-yellow-400" />
                     Part 1
                   </h3>
 
                   <div class="bg-slate-900/80 rounded-lg p-6 border border-slate-700">
                     <div class="text-center">
                       <p class="text-gray-400 text-sm mb-2">Result</p>
-                      <p class="text-5xl font-bold text-green-400 mb-2 break-words">
+                      <p class={[
+                        "text-5xl font-bold mb-2 break-words",
+                        if(@has_part1, do: "text-green-400", else: "text-gray-500")
+                      ]}>
                         {@part1_result}
                       </p>
-                      <p class="text-gray-500 text-xs">
-                        Calculated in {format_time(@part1_time)}
-                      </p>
+                      <%= if @has_part1 do %>
+                        <p class="text-gray-500 text-xs">
+                          Calculated in {format_time(@part1_time)}
+                        </p>
+                      <% else %>
+                        <p class="text-gray-600 text-xs">
+                          Not implemented yet
+                        </p>
+                      <% end %>
                     </div>
                   </div>
                 </div>
 
                 <%!-- Part 2 Result --%>
-                <div class="bg-slate-800/50 backdrop-blur-sm rounded-lg p-6 border border-blue-500/30 shadow-xl">
+                <div class={[
+                  "bg-slate-800/50 backdrop-blur-sm rounded-lg p-6 shadow-xl",
+                  if(@has_part2, do: "border border-blue-500/30", else: "border border-slate-700/30 opacity-50")
+                ]}>
                   <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                    <.icon name="hero-star-solid" class="w-6 h-6 text-yellow-400" />
-                    <.icon name="hero-star-solid" class="w-6 h-6 text-yellow-400" />
                     Part 2
                   </h3>
 
                   <div class="bg-slate-900/80 rounded-lg p-6 border border-slate-700">
                     <div class="text-center">
                       <p class="text-gray-400 text-sm mb-2">Result</p>
-                      <p class="text-5xl font-bold text-blue-400 mb-2 break-words">
+                      <p class={[
+                        "text-5xl font-bold mb-2 break-words",
+                        if(@has_part2, do: "text-blue-400", else: "text-gray-500")
+                      ]}>
                         {@part2_result}
                       </p>
-                      <p class="text-gray-500 text-xs">
-                        Calculated in {format_time(@part2_time)}
-                      </p>
+                      <%= if @has_part2 do %>
+                        <p class="text-gray-500 text-xs">
+                          Calculated in {format_time(@part2_time)}
+                        </p>
+                      <% else %>
+                        <p class="text-gray-600 text-xs">
+                          Not implemented yet
+                        </p>
+                      <% end %>
                     </div>
                   </div>
                 </div>
