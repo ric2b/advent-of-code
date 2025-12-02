@@ -66,16 +66,13 @@ defmodule Advent2025Web.HomeLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <div class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
-        <div class="max-w-7xl mx-auto">
+      <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4 flex flex-col">
+        <div class="max-w-7xl mx-auto w-full">
           <%!-- Header --%>
           <div class="text-center mb-12">
             <h1 class="text-6xl font-bold text-white mb-4">
               🎄 Advent of Code 2025 🎄
             </h1>
-            <p class="text-gray-300 text-xl">
-              Interactive Solution Viewer
-            </p>
             <p class="text-gray-400 text-sm mt-2">
               Click on any available day to view and test the solution
             </p>
@@ -123,11 +120,13 @@ defmodule Advent2025Web.HomeLive do
               <% end %>
             <% end %>
           </div>
+        </div>
 
-          <%!-- Stats Section --%>
-          <% total_parts = 24 %>
-          <% completed_parts = Enum.sum(Enum.map(@days, fn d -> length(d.available_parts) end)) %>
-          <div class="mt-12 bg-slate-800/50 backdrop-blur-sm rounded-lg p-6 border border-purple-500/30 shadow-xl max-w-2xl mx-auto">
+        <%!-- Stats Section (pushed to bottom) --%>
+        <% total_parts = 24 %>
+        <% completed_parts = Enum.sum(Enum.map(@days, fn d -> length(d.available_parts) end)) %>
+        <div class="mt-auto pt-12 max-w-2xl mx-auto w-full">
+          <div class="bg-slate-800/50 backdrop-blur-sm rounded-lg p-6 border border-purple-500/30 shadow-xl">
             <h3 class="text-xl font-semibold text-white mb-4 text-center flex items-center justify-center gap-2">
               <.icon name="hero-chart-bar" class="w-6 h-6 text-purple-400" />
               Progress

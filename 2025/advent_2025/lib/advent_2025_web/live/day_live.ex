@@ -140,7 +140,7 @@ defmodule Advent2025Web.DayLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <div class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
+      <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
         <div class="max-w-6xl mx-auto">
           <%!-- Header --%>
           <div class="text-center mb-8">
@@ -162,9 +162,6 @@ defmodule Advent2025Web.DayLive do
                 <.icon name="hero-star" class="w-6 h-6 text-yellow-400/40" />
               <% end %>
             </div>
-            <p class="text-gray-300 text-lg">
-              Solution Viewer
-            </p>
           </div>
 
           <%!-- Day Navigation --%>
