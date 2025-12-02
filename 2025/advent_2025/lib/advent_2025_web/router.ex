@@ -17,8 +17,8 @@ defmodule Advent2025Web.Router do
   scope "/", Advent2025Web do
     pipe_through :browser
 
-    get "/", PageController, :home
-    live "/day/01", Day01Live
+    live "/", HomeLive
+    live "/day/:day", DayLive
   end
 
   # Other scopes may use custom stacks.

@@ -4,22 +4,9 @@ defmodule Advent2025.Day01Test do
 
   alias Advent2025.Day01
 
-  @sample_input """
-  L68
-  L30
-  R48
-  L5
-  R60
-  L55
-  L1
-  L99
-  R14
-  L82
-  """
-
   describe "part1" do
     test "solves sample input" do
-      assert Day01.part1(@sample_input) == 3
+      assert Day01.part1(Day01.example_input(1)) == 3
     end
 
     test "solves actual input" do
@@ -29,7 +16,7 @@ defmodule Advent2025.Day01Test do
 
   describe "part2" do
     test "solves sample input" do
-      assert Day01.part2(@sample_input) == 6
+      assert Day01.part2(Day01.example_input(2)) == 6
     end
 
     # @tag :skip

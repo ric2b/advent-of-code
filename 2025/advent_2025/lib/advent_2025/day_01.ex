@@ -4,6 +4,24 @@ defmodule Advent2025.Day01 do
   """
 
   @doc """
+  Returns the example input for the given part (1 or 2).
+  """
+  def example_input(_part) do
+    """
+    L68
+    L30
+    R48
+    L5
+    R60
+    L55
+    L1
+    L99
+    R14
+    L82
+    """
+  end
+
+  @doc """
   Solves part 1 of the puzzle.
   """
   def part1(input) do
