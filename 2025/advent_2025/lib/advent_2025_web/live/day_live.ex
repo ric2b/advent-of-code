@@ -10,6 +10,9 @@ defmodule Advent2025Web.DayLive do
     day_number = String.to_integer(day)
     module = get_day_module(day_number)
 
+    has_previous = day_number > 1 and day_exists?(day_number - 1)
+    has_next = day_exists?(day_number + 1)
+
     case module do
       {:ok, day_module} ->
         socket =
@@ -17,6 +20,8 @@ defmodule Advent2025Web.DayLive do
           |> assign(:day, day)
           |> assign(:day_number, day_number)
           |> assign(:day_module, day_module)
+          |> assign(:has_previous, has_previous)
+          |> assign(:has_next, has_next)
           |> assign(:input, get_default_input(day_module))
           |> calculate_results()
 
@@ -29,6 +34,8 @@ defmodule Advent2025Web.DayLive do
           |> assign(:day, day)
           |> assign(:day_number, day_number)
           |> assign(:day_module, nil)
+          |> assign(:has_previous, has_previous)
+          |> assign(:has_next, has_next)
           |> assign(:input, @default_input)
           |> assign(:part1_result, "N/A")
           |> assign(:part1_time, 0)
@@ -101,6 +108,11 @@ defmodule Advent2025Web.DayLive do
     end
   end
 
+  defp day_exists?(day_number) do
+    module_name = Module.concat([Advent2025, "Day#{String.pad_leading(to_string(day_number), 2, "0")}"])
+    Code.ensure_loaded?(module_name)
+  end
+
   defp get_default_input(day_module) when is_atom(day_module) do
     day_module.example_input(1)
   end
@@ -111,10 +123,10 @@ defmodule Advent2025Web.DayLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
+      <div class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
         <div class="max-w-6xl mx-auto">
           <%!-- Header --%>
-          <div class="text-center mb-12">
+          <div class="text-center mb-8">
             <h1 class="text-5xl font-bold text-white mb-4">
               🎄 Advent of Code 2025
             </h1>
@@ -124,6 +136,47 @@ defmodule Advent2025Web.DayLive do
             <p class="text-gray-300 text-lg">
               Solution Viewer
             </p>
+          </div>
+
+          <%!-- Day Navigation --%>
+          <div class="flex items-center justify-center gap-4 mb-8">
+            <%= if @has_previous do %>
+              <.link
+                navigate={~p"/day/#{@day_number - 1}"}
+                class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/70 hover:bg-slate-700/70 text-white rounded-lg border border-purple-500/30 hover:border-purple-500/60 transition-all duration-200 transform hover:scale-105 font-medium"
+              >
+                <.icon name="hero-chevron-left" class="w-5 h-5" />
+                Day {@day_number - 1}
+              </.link>
+            <% else %>
+              <span class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/30 text-gray-500 rounded-lg border border-slate-700/30 cursor-not-allowed font-medium">
+                <.icon name="hero-chevron-left" class="w-5 h-5" />
+                Day {@day_number - 1}
+              </span>
+            <% end %>
+
+            <.link
+              navigate={~p"/"}
+              class="flex items-center gap-2 px-5 py-2.5 bg-purple-600/80 hover:bg-purple-600 text-white rounded-lg transition-all duration-200 transform hover:scale-105 font-medium"
+            >
+              <.icon name="hero-home" class="w-5 h-5" />
+              Home
+            </.link>
+
+            <%= if @has_next do %>
+              <.link
+                navigate={~p"/day/#{@day_number + 1}"}
+                class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/70 hover:bg-slate-700/70 text-white rounded-lg border border-purple-500/30 hover:border-purple-500/60 transition-all duration-200 transform hover:scale-105 font-medium"
+              >
+                Day {@day_number + 1}
+                <.icon name="hero-chevron-right" class="w-5 h-5" />
+              </.link>
+            <% else %>
+              <span class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/30 text-gray-500 rounded-lg border border-slate-700/30 cursor-not-allowed font-medium">
+                Day {@day_number + 1}
+                <.icon name="hero-chevron-right" class="w-5 h-5" />
+              </span>
+            <% end %>
           </div>
 
           <%= if @day_module do %>

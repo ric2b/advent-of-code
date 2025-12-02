@@ -56,7 +56,7 @@ defmodule Advent2025Web.HomeLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
+      <div class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
         <div class="max-w-7xl mx-auto">
           <%!-- Header --%>
           <div class="text-center mb-12">
@@ -131,25 +131,6 @@ defmodule Advent2025Web.HomeLive do
                 </div>
                 <div class="text-gray-400 text-sm mt-1">Progress</div>
               </div>
-            </div>
-          </div>
-
-          <%!-- How to Add Solutions --%>
-          <div class="mt-12 bg-slate-800/50 backdrop-blur-sm rounded-lg p-6 border border-blue-500/30 shadow-xl max-w-4xl mx-auto">
-            <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              <.icon name="hero-code-bracket" class="w-6 h-6 text-blue-400" />
-              How to Add a New Day
-            </h3>
-            <div class="text-gray-300 space-y-3">
-              <p>Each day's solution should be implemented as a module with three functions:</p>
-              <div class="bg-slate-900/80 rounded-lg p-4 font-mono text-sm text-green-300 overflow-x-auto">
-                <pre>{@example_code}</pre>
-              </div>
-              <ul class="text-sm text-gray-400 space-y-1">
-                <li>• Replace XX with the zero-padded day number (e.g., Day01, Day02, etc.)</li>
-                <li>• The <code class="text-purple-400">example_input/1</code> function provides sample inputs for testing</li>
-                <li>• Both parts can share the same example or use different ones</li>
-              </ul>
             </div>
           </div>
         </div>
