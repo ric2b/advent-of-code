@@ -1,4 +1,7 @@
 import Config
+import Dotenvy
+
+source!(".env")
 
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
@@ -22,6 +25,9 @@ end
 
 config :advent_2025, Advent2025Web.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
+
+config :advent_2025,
+ aoc_token: env!("AOC_TOKEN", :string, "invalid_token")
 
 if config_env() == :prod do
   database_url =

@@ -35,3 +35,5 @@ advent_2025-*.tar
 npm-debug.log
 /assets/node_modules/
 
+*.env
+!.env.example
