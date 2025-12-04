@@ -185,7 +185,7 @@ defmodule Advent2025Web.DayLive do
           <%!-- Header --%>
           <div class="text-center mb-8">
             <h1 class="text-5xl font-bold text-white mb-4">
-              🎄 Advent of Code 2025
+              🎄 Advent of Code 2025 🎄
             </h1>
             <h2 class="text-3xl font-semibold text-green-400 mb-2">
               Day {@day_number}
