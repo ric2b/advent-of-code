@@ -28,7 +28,11 @@ defmodule Advent2025Web.DayLive do
           |> assign(:has_previous, has_previous)
           |> assign(:has_next, has_next)
           |> assign(:input, get_default_input(day_module))
-          |> calculate_results()
+          |> assign(:part1_result, nil)
+          |> assign(:part1_loading, false)
+          |> assign(:part2_result, nil)
+          |> assign(:part2_loading, false)
+          |> start_calculations()
 
         {:ok, socket}
 
@@ -46,9 +50,9 @@ defmodule Advent2025Web.DayLive do
           |> assign(:has_next, has_next)
           |> assign(:input, @default_input)
           |> assign(:part1_result, "N/A")
-          |> assign(:part1_time, 0)
+          |> assign(:part1_loading, false)
           |> assign(:part2_result, "N/A")
-          |> assign(:part2_time, 0)
+          |> assign(:part2_loading, false)
 
         {:ok, socket}
     end
@@ -59,7 +63,7 @@ defmodule Advent2025Web.DayLive do
     socket =
       socket
       |> assign(:input, input)
-      |> calculate_results()
+      |> start_calculations()
 
     {:noreply, socket}
   end
@@ -69,50 +73,77 @@ defmodule Advent2025Web.DayLive do
     socket =
       socket
       |> assign(:input, get_default_input(socket.assigns.day_module))
-      |> calculate_results()
+      |> start_calculations()
 
     {:noreply, socket}
   end
 
-  defp calculate_results(socket) do
+  defp start_calculations(socket) do
     case socket.assigns.day_module do
       nil ->
         socket
 
-      day_module ->
-        input = socket.assigns.input
+      _day_module ->
         available_parts = socket.assigns.available_parts
 
-        {part1_time, part1_result} =
-          if 1 in available_parts do
-            try do
-              :timer.tc(fn -> day_module.part1(input) end)
-            rescue
-              error ->
-                {0, "Error: #{Exception.message(error)}"}
-            end
-          else
-            {0, "N/A"}
-          end
-
-        {part2_time, part2_result} =
-          if 2 in available_parts do
-            try do
-              :timer.tc(fn -> day_module.part2(input) end)
-            rescue
-              error ->
-                {0, "Error: #{Exception.message(error)}"}
-            end
-          else
-            {0, "N/A"}
-          end
-
         socket
-        |> assign(:part1_result, part1_result)
-        |> assign(:part1_time, part1_time / 1_000)
-        |> assign(:part2_result, part2_result)
-        |> assign(:part2_time, part2_time / 1_000)
+        |> then(fn s ->
+          if 1 in available_parts do
+            send(self(), :calculate_part1)
+            assign(s, :part1_loading, true)
+          else
+            assign(s, part1_result: "N/A", part1_loading: false)
+          end
+        end)
+        |> then(fn s ->
+          if 2 in available_parts do
+            send(self(), :calculate_part2)
+            assign(s, :part2_loading, true)
+          else
+            assign(s, part2_result: "N/A", part2_loading: false)
+          end
+        end)
     end
+  end
+
+  @impl true
+  def handle_info(:calculate_part1, socket) do
+    day_module = socket.assigns.day_module
+    input = socket.assigns.input
+
+    {time, result} =
+      try do
+        :timer.tc(fn -> day_module.part1(input) end)
+      rescue
+        error ->
+          {0, "Error: #{Exception.message(error)}"}
+      end
+
+    {:noreply,
+     socket
+     |> assign(:part1_result, result)
+     |> assign(:part1_time, time / 1_000)
+     |> assign(:part1_loading, false)}
+  end
+
+  @impl true
+  def handle_info(:calculate_part2, socket) do
+    day_module = socket.assigns.day_module
+    input = socket.assigns.input
+
+    {time, result} =
+      try do
+        :timer.tc(fn -> day_module.part2(input) end)
+      rescue
+        error ->
+          {0, "Error: #{Exception.message(error)}"}
+      end
+
+    {:noreply,
+     socket
+     |> assign(:part2_result, result)
+     |> assign(:part2_time, time / 1_000)
+     |> assign(:part2_loading, false)}
   end
 
   defp get_day_module(day_number) do
@@ -247,20 +278,27 @@ defmodule Advent2025Web.DayLive do
                   <div class="bg-slate-900/80 rounded-lg p-6 border border-slate-700">
                     <div class="text-center">
                       <p class="text-gray-400 text-sm mb-2">Result</p>
-                      <p class={[
-                        "text-5xl font-bold mb-2 break-words",
-                        if(@has_part1, do: "text-green-400", else: "text-gray-500")
-                      ]}>
-                        {@part1_result}
-                      </p>
-                      <%= if @has_part1 do %>
-                        <p class="text-gray-500 text-xs">
-                          Calculated in {format_time(@part1_time)}
-                        </p>
+                      <%= if @part1_loading do %>
+                        <div class="flex flex-col items-center justify-center py-2">
+                          <div class="w-12 h-12 border-4 border-green-400/30 border-t-green-400 rounded-full animate-spin mb-3"></div>
+                          <p class="text-gray-400 text-sm animate-pulse">Calculating...</p>
+                        </div>
                       <% else %>
-                        <p class="text-gray-600 text-xs">
-                          Not implemented yet
+                        <p class={[
+                          "text-5xl font-bold mb-2 break-words",
+                          if(@has_part1, do: "text-green-400", else: "text-gray-500")
+                        ]}>
+                          {@part1_result}
                         </p>
+                        <%= if @has_part1 do %>
+                          <p class="text-gray-500 text-xs">
+                            Calculated in {format_time(@part1_time)}
+                          </p>
+                        <% else %>
+                          <p class="text-gray-600 text-xs">
+                            Not implemented yet
+                          </p>
+                        <% end %>
                       <% end %>
                     </div>
                   </div>
@@ -278,20 +316,27 @@ defmodule Advent2025Web.DayLive do
                   <div class="bg-slate-900/80 rounded-lg p-6 border border-slate-700">
                     <div class="text-center">
                       <p class="text-gray-400 text-sm mb-2">Result</p>
-                      <p class={[
-                        "text-5xl font-bold mb-2 break-words",
-                        if(@has_part2, do: "text-blue-400", else: "text-gray-500")
-                      ]}>
-                        {@part2_result}
-                      </p>
-                      <%= if @has_part2 do %>
-                        <p class="text-gray-500 text-xs">
-                          Calculated in {format_time(@part2_time)}
-                        </p>
+                      <%= if @part2_loading do %>
+                        <div class="flex flex-col items-center justify-center py-2">
+                          <div class="w-12 h-12 border-4 border-blue-400/30 border-t-blue-400 rounded-full animate-spin mb-3"></div>
+                          <p class="text-gray-400 text-sm animate-pulse">Calculating...</p>
+                        </div>
                       <% else %>
-                        <p class="text-gray-600 text-xs">
-                          Not implemented yet
+                        <p class={[
+                          "text-5xl font-bold mb-2 break-words",
+                          if(@has_part2, do: "text-blue-400", else: "text-gray-500")
+                        ]}>
+                          {@part2_result}
                         </p>
+                        <%= if @has_part2 do %>
+                          <p class="text-gray-500 text-xs">
+                            Calculated in {format_time(@part2_time)}
+                          </p>
+                        <% else %>
+                          <p class="text-gray-600 text-xs">
+                            Not implemented yet
+                          </p>
+                        <% end %>
                       <% end %>
                     </div>
                   </div>
