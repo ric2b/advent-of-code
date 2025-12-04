@@ -83,67 +83,76 @@ defmodule Advent2025Web.DayLive do
       nil ->
         socket
 
-      _day_module ->
+      day_module ->
         available_parts = socket.assigns.available_parts
+        input = socket.assigns.input
+        lv_pid = self()
 
         socket
         |> then(fn s ->
           if 1 in available_parts do
-            send(self(), :calculate_part1)
+            Task.async(fn ->
+              {time, result} =
+                try do
+                  :timer.tc(fn -> day_module.part1(input) end)
+                rescue
+                  error ->
+                    {0, "Error: #{Exception.message(error)}"}
+                end
+
+              send(lv_pid, {:part1_result, result, time / 1_000})
+            end)
+
             assign(s, :part1_loading, true)
           else
-            assign(s, part1_result: "N/A", part1_loading: false)
+            assign(s, part1_result: "N/A", part1_time: 0, part1_loading: false)
           end
         end)
         |> then(fn s ->
           if 2 in available_parts do
-            send(self(), :calculate_part2)
+            Task.async(fn ->
+              {time, result} =
+                try do
+                  :timer.tc(fn -> day_module.part2(input) end)
+                rescue
+                  error ->
+                    {0, "Error: #{Exception.message(error)}"}
+                end
+
+              send(lv_pid, {:part2_result, result, time / 1_000})
+            end)
+
             assign(s, :part2_loading, true)
           else
-            assign(s, part2_result: "N/A", part2_loading: false)
+            assign(s, part2_result: "N/A", part2_time: 0, part2_loading: false)
           end
         end)
     end
   end
 
   @impl true
-  def handle_info(:calculate_part1, socket) do
-    day_module = socket.assigns.day_module
-    input = socket.assigns.input
-
-    {time, result} =
-      try do
-        :timer.tc(fn -> day_module.part1(input) end)
-      rescue
-        error ->
-          {0, "Error: #{Exception.message(error)}"}
-      end
-
+  def handle_info({:part1_result, result, time}, socket) do
     {:noreply,
      socket
      |> assign(:part1_result, result)
-     |> assign(:part1_time, time / 1_000)
+     |> assign(:part1_time, time)
      |> assign(:part1_loading, false)}
   end
 
   @impl true
-  def handle_info(:calculate_part2, socket) do
-    day_module = socket.assigns.day_module
-    input = socket.assigns.input
-
-    {time, result} =
-      try do
-        :timer.tc(fn -> day_module.part2(input) end)
-      rescue
-        error ->
-          {0, "Error: #{Exception.message(error)}"}
-      end
-
+  def handle_info({:part2_result, result, time}, socket) do
     {:noreply,
      socket
      |> assign(:part2_result, result)
-     |> assign(:part2_time, time / 1_000)
+     |> assign(:part2_time, time)
      |> assign(:part2_loading, false)}
+  end
+
+  # Handle Task.async completion messages (we don't need the result here since we send our own message)
+  @impl true
+  def handle_info({ref, _result}, socket) when is_reference(ref) do
+    Process.demonitor(ref, [:flush])
+    {:noreply, socket}
   end
 
   defp get_day_module(day_number) do
