@@ -27,6 +27,7 @@ advent_2025-*.tar
 
 # Ignore assets that are produced by build tools.
 /priv/static/assets/
+priv/static/inputs/
 
 # Ignore digested assets cache.
 /priv/static/cache_manifest.json

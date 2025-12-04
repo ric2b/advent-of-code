@@ -7,7 +7,7 @@ defmodule Advent2025.Day03 do
   Returns which parts are available/implemented for this day.
   Returns a list like [], [1], or [1, 2].
   """
-  def available_parts, do: []
+  def available_parts, do: [1,2]
 
   @doc """
   Returns the example input for the given part (1 or 2).
@@ -64,22 +64,5 @@ defmodule Advent2025.Day03 do
       |> String.to_integer()
     end)
     |> Enum.sum()
-  end
-
-  @doc """
-  Returns all combinations of the given list of size.
-  For example, combinations(["a", "b", "c"], 2) returns [["a", "b"], ["a", "c"], ["b", "c"]].
-  """
-  def combinations(list, size) when size == 1 do
-    for item <- list, do: [item]
-    |> Enum.uniq()
-  end
-
-  def combinations(list, size) do
-    Enum.flat_map(Enum.with_index(list), fn {item, index}  ->
-      combinations(Enum.slice(list, index+1..-1//1), size - 1)
-      |> Enum.map(fn digits -> [item | digits] end)
-    end)
-    |> Enum.uniq()
   end
 end
