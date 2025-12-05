@@ -305,7 +305,7 @@ defmodule Advent2025Web.DayLive do
                           </p>
                         <% else %>
                           <p class="text-gray-600 text-xs">
-                            Not implemented yet
+                            Not available yet
                           </p>
                         <% end %>
                       <% end %>
@@ -343,7 +343,7 @@ defmodule Advent2025Web.DayLive do
                           </p>
                         <% else %>
                           <p class="text-gray-600 text-xs">
-                            Not implemented yet
+                            Not available yet
                           </p>
                         <% end %>
                       <% end %>
