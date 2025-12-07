@@ -67,7 +67,8 @@ defmodule Advent2025.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:dotenvy, "~> 1.0.0"},
-      {:httpoison, "~> 2.3"}
+      {:httpoison, "~> 2.3"},
+      {:memoize, "~> 1.4"}
     ]
   end
 
