@@ -17,8 +17,9 @@ defmodule Advent2025.Day09Test do
       assert @day.part2(@day.example_input(2)) == 24
     end
 
+    # Finished in 0.1 seconds
+    # Finished in 204.9 seconds
     # Finished in 1152.6 seconds
-    @tag timeout: :infinity
     test "solves actual input" do
       assert @day.part2(@actual_input) == 1461987144
     end
