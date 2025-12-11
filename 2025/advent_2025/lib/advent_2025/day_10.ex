@@ -49,7 +49,7 @@ defmodule Advent2025.Day10 do
     problem = Problem.new(direction: :minimize)
 
     {problem, button_variables} = Enum.reduce(Enum.with_index(buttons), {problem, []}, fn {_button, index}, {problem, variables} ->
-      {problem, variable} = Problem.new_variable(problem, "b#{index}", min: 0, max: 1000.0, type: :integer2)
+      {problem, variable} = Problem.new_variable(problem, "b#{index}", min: 0, max: 1000.0, type: :integer)
       {problem, [variable | variables]}
     end)
 
@@ -64,49 +64,18 @@ defmodule Advent2025.Day10 do
 
     problem = Problem.increment_objective(problem, Enum.reduce(button_variables, fn var, acc -> Polynomial.add(acc, var) end))
 
-    filename = "#{Enum.join(target_joltage, "-")}_problem.lp"
-    Dantzig.dump_problem_to_file(problem, filename)
+    case Dantzig.solve(problem) do
+      {:ok, solution} ->
+        result = %{
+          status: solution.model_status,
+          total_presses: solution.objective,
+          variables: Enum.map(button_variables, fn variable -> {variable, Solution.evaluate(solution, variable)} end)
+        }
 
-    variables_line = problem.variables
-    |> Enum.map(fn {name, _var} -> name end)
-    |> Enum.join(" ")
-
-    filename
-    |> File.read!()
-    |> String.replace("General\n", "General\n  #{variables_line}\n")
-    |> then(&File.write!(filename, &1))
-
-    {highs_output, 0} = System.cmd("highs", [filename])
-
-    highs_output
-    |> String.split("\n")
-    |> Enum.find(&String.contains?(&1, "Primal bound"))
-    |> String.split("      ")
-    |> Enum.at(1)
-    |> String.to_integer()
-
-    # case Dantzig.solve(problem) do
-    #   {:ok, solution} ->
-    #     result = %{
-    #       status: solution.model_status,
-    #       total_presses: solution.objective,
-    #       variables: Enum.map(button_variables, fn variable -> {variable, Solution.evaluate(solution, variable)} end)
-    #     }
-
-    #     if result.total_presses == 43.5 do
-    #       IO.inspect(problem, label: "problem")
-    #       IO.inspect(result, label: "result")
-    #     end
-
-    #     case result.total_presses do
-    #       Float -> Float.ceil(result.total_presses)
-    #       _ -> result.total_presses
-    #     end
-    #     # Float.ceil(result.total_presses)
-    #     # |> IO.inspect(label: "result")
-    #   {:error, error} ->
-    #     IO.inspect(error, label: "error")
-    # end
+        result.total_presses
+      {:error, error} ->
+        IO.inspect(error, label: "error")
+    end
   end
 
   defp min_button_presses(current_level, target, neighbours_fn, visited \\ MapSet.new(), steps \\ 0) do
