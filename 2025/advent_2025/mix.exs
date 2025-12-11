@@ -68,7 +68,8 @@ defmodule Advent2025.MixProject do
       {:bandit, "~> 1.5"},
       {:dotenvy, "~> 1.0.0"},
       {:httpoison, "~> 2.3"},
-      {:memoize, "~> 1.4"}
+      {:memoize, "~> 1.4"},
+      {:dantzig, "~> 0.2.0"}
     ]
   end
 

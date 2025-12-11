@@ -1,4 +1,8 @@
 defmodule Advent2025.Day10 do
+  require Dantzig.Problem, as: Problem
+  require Dantzig.Constraint, as: Constraint
+  alias Dantzig.{Solution, Polynomial}
+
   @moduledoc """
   Solution for Advent of Code 2025 - Day 10
   """
@@ -36,17 +40,76 @@ defmodule Advent2025.Day10 do
   """
   def part2(input) do
     Enum.map(parse_input(input), fn {_target_pattern, buttons, target_joltage} ->
-      current_joltage = Enum.map(target_joltage, fn _ -> 0 end)
-      min_button_presses([current_joltage], target_joltage, &possible_joltages(buttons, target_joltage, &1))
+      find_solution(target_joltage, buttons)
     end)
     |> Enum.sum()
   end
 
-  defp min_button_presses(current_level, target, neighbours_fn, visited \\ MapSet.new(), steps \\ 0)
-  # defp min_button_presses(current_level, visited, target, neighbours_fn, steps)
-  #  when not Kernel.is_list(current_level), do: min_button_presses([current_level], visited, target, neighbours_fn, steps)
+  defp find_solution(target_joltage, buttons) do
+    problem = Problem.new(direction: :minimize)
 
-  defp min_button_presses(current_level, target, neighbours_fn, visited, steps) do
+    {problem, button_variables} = Enum.reduce(Enum.with_index(buttons), {problem, []}, fn {_button, index}, {problem, variables} ->
+      {problem, variable} = Problem.new_variable(problem, "b#{index}", min: 0, max: 1000.0, type: :integer2)
+      {problem, [variable | variables]}
+    end)
+
+    problem = Enum.reduce(Enum.with_index(target_joltage), problem, fn {joltage_cell, joltage_index}, problem ->
+      variables_for_joltage = Enum.zip(buttons, button_variables)
+      |> Enum.filter(fn {button, _button_variable} -> joltage_index in button end)
+      |> Enum.map(&elem(&1, 1))
+
+      sum_of_variables = Enum.reduce(variables_for_joltage, fn var, acc -> Polynomial.add(acc, var) end)
+      Problem.add_constraint(problem, Constraint.new(sum_of_variables == joltage_cell))
+    end)
+
+    problem = Problem.increment_objective(problem, Enum.reduce(button_variables, fn var, acc -> Polynomial.add(acc, var) end))
+
+    filename = "#{Enum.join(target_joltage, "-")}_problem.lp"
+    Dantzig.dump_problem_to_file(problem, filename)
+
+    variables_line = problem.variables
+    |> Enum.map(fn {name, _var} -> name end)
+    |> Enum.join(" ")
+
+    filename
+    |> File.read!()
+    |> String.replace("General\n", "General\n  #{variables_line}\n")
+    |> then(&File.write!(filename, &1))
+
+    {highs_output, 0} = System.cmd("highs", [filename])
+
+    highs_output
+    |> String.split("\n")
+    |> Enum.find(&String.contains?(&1, "Primal bound"))
+    |> String.split("      ")
+    |> Enum.at(1)
+    |> String.to_integer()
+
+    # case Dantzig.solve(problem) do
+    #   {:ok, solution} ->
+    #     result = %{
+    #       status: solution.model_status,
+    #       total_presses: solution.objective,
+    #       variables: Enum.map(button_variables, fn variable -> {variable, Solution.evaluate(solution, variable)} end)
+    #     }
+
+    #     if result.total_presses == 43.5 do
+    #       IO.inspect(problem, label: "problem")
+    #       IO.inspect(result, label: "result")
+    #     end
+
+    #     case result.total_presses do
+    #       Float -> Float.ceil(result.total_presses)
+    #       _ -> result.total_presses
+    #     end
+    #     # Float.ceil(result.total_presses)
+    #     # |> IO.inspect(label: "result")
+    #   {:error, error} ->
+    #     IO.inspect(error, label: "error")
+    # end
+  end
+
+  defp min_button_presses(current_level, target, neighbours_fn, visited \\ MapSet.new(), steps \\ 0) do
     if target in current_level do
       steps
     else
@@ -71,18 +134,18 @@ defmodule Advent2025.Day10 do
     |> Enum.uniq()
   end
 
-  defp possible_joltages(buttons, target_joltage, current_joltage) do
-    Enum.map(buttons, fn button ->
-      Enum.map(Enum.with_index(current_joltage), fn {joltage_cell, joltage_index} ->
-        if joltage_index in button, do: joltage_cell + 1, else: joltage_cell
-      end)
-    end)
-    |> Enum.reject(fn joltage ->
-      Enum.zip(target_joltage, joltage)
-      |> Enum.any?(fn {target, current} -> current > target end)
-    end)
-    |> Enum.uniq()
-  end
+  # defp possible_joltages(buttons, target_joltage, current_joltage) do
+  #   Enum.map(buttons, fn button ->
+  #     Enum.map(Enum.with_index(current_joltage), fn {joltage_cell, joltage_index} ->
+  #       if joltage_index in button, do: joltage_cell + 1, else: joltage_cell
+  #     end)
+  #   end)
+  #   |> Enum.reject(fn joltage ->
+  #     Enum.zip(target_joltage, joltage)
+  #     |> Enum.any?(fn {target, current} -> current > target end)
+  #   end)
+  #   |> Enum.uniq()
+  # end
 
   defp parse_input(input) do
     input

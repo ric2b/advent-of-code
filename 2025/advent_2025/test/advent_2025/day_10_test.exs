@@ -17,10 +17,8 @@ defmodule Advent2025.Day10Test do
       assert @day.part2(@day.example_input(2)) == 33
     end
 
-    @tag :skip
-    @tag timeout: :infinity
     test "solves actual input" do
-      assert @day.part2(@actual_input) == :todo
+      assert @day.part2(@actual_input) == 19810
     end
   end
 end
