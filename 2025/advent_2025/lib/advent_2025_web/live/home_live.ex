@@ -48,8 +48,17 @@ defmodule Advent2025Web.HomeLive do
             <h1 class="text-6xl font-bold text-white mb-4">
               🎄 Advent of Code 2025 🎄
             </h1>
-            <p class="text-gray-400 text-sm mt-2">
-              Click on any available day to view and test the solution
+            <p class="text-gray-400 text-sm mt-2 flex items-center justify-center gap-2">
+              Interactive solutions for Advent of Code 2025
+              <a
+                href={"https://github.com/ric2b/advent-of-code/blob/master/2025/advent_2025"}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="opacity-70 hover:opacity-100 transition-opacity"
+                title="View on GitHub"
+              >
+                <img src="https://github.githubassets.com/favicons/favicon-dark.svg" alt="GitHub" class="w-5 h-5" />
+              </a>
             </p>
           </div>
 

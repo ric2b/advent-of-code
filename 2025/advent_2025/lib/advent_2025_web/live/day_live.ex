@@ -433,8 +433,17 @@ defmodule Advent2025Web.DayLive do
               <%= if @show_code do %>
                 <div class="mt-4 bg-slate-900/80 rounded-lg border border-slate-700 overflow-hidden">
                   <div class="flex items-center justify-between px-4 py-2 bg-slate-800/50 border-b border-slate-700">
-                    <span class="text-sm text-gray-400 font-mono">
+                    <span class="text-sm text-gray-400 font-mono flex items-center gap-2">
                       lib/advent_2025/day_{String.pad_leading(to_string(@day_number), 2, "0")}.ex
+                      <a
+                        href={"https://github.com/ric2b/advent-of-code/blob/master/2025/advent_2025/lib/advent_2025/day_#{String.pad_leading(to_string(@day_number), 2, "0")}.ex"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="opacity-70 hover:opacity-100 transition-opacity"
+                        title="View on GitHub"
+                      >
+                        <img src="https://github.githubassets.com/favicons/favicon-dark.svg" alt="GitHub" class="w-5 h-5" />
+                      </a>
                     </span>
                   </div>
                   <pre class="p-4 overflow-x-auto text-sm"><code class="font-mono"><%= raw(@source_code) %></code></pre>
