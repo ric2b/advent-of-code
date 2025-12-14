@@ -1,31 +1,6 @@
 defmodule Advent2025Web.HomeLive do
   use Advent2025Web, :live_view
 
-  @example_code """
-  defmodule Advent2025.DayXX do
-    def example_input(part) do
-      # Returns example input for part 1 or 2
-      # part: 1 or 2
-      # returns: String
-      \"\"\"
-      Your example input here...
-      \"\"\"
-    end
-
-    def part1(input) do
-      # Your solution for part 1
-      # input: String
-      # returns: Integer or String
-    end
-
-    def part2(input) do
-      # Your solution for part 2
-      # input: String
-      # returns: Integer or String
-    end
-  end
-  """
-
   @impl true
   def mount(_params, _session, socket) do
     days = get_available_days()

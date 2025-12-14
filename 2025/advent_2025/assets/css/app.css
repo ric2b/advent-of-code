@@ -125,17 +125,6 @@
   }
 }
 
-@keyframes twinkle {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(0.9);
-  }
-}
-
 /* Makeup syntax highlighting */
 .k, .kd, .kn, .kp, .kr, .kt { color: #c678dd; }  /* Keywords */
 .nc, .nf, .nn { color: #61afef; }  /* Names */
