@@ -228,20 +228,14 @@ defmodule Advent2025Web.DayLive do
 
           <%!-- Day Navigation --%>
           <div class="flex items-center justify-center gap-4 mb-8">
-            <%= if @has_previous do %>
-              <.link
-                navigate={~p"/day/#{@day_number - 1}"}
-                class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/70 hover:bg-slate-700/70 text-white rounded-lg border border-purple-500/30 hover:border-purple-500/60 transition-all duration-200 transform hover:scale-105 font-medium"
-              >
-                <.icon name="hero-chevron-left" class="w-5 h-5" />
-                Day {@day_number - 1}
-              </.link>
-            <% else %>
-              <span class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/30 text-gray-500 rounded-lg border border-slate-700/30 cursor-not-allowed font-medium">
-                <.icon name="hero-chevron-left" class="w-5 h-5" />
-                Day {@day_number - 1}
-              </span>
-            <% end %>
+            <.link
+              :if={@has_previous}
+              navigate={~p"/day/#{@day_number - 1}"}
+              class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/70 hover:bg-slate-700/70 text-white rounded-lg border border-purple-500/30 hover:border-purple-500/60 transition-all duration-200 transform hover:scale-105 font-medium"
+            >
+              <.icon name="hero-chevron-left" class="w-5 h-5" />
+              Day {@day_number - 1}
+            </.link>
 
             <.link
               navigate={~p"/"}
@@ -251,20 +245,14 @@ defmodule Advent2025Web.DayLive do
               Home
             </.link>
 
-            <%= if @has_next do %>
-              <.link
-                navigate={~p"/day/#{@day_number + 1}"}
-                class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/70 hover:bg-slate-700/70 text-white rounded-lg border border-purple-500/30 hover:border-purple-500/60 transition-all duration-200 transform hover:scale-105 font-medium"
-              >
-                Day {@day_number + 1}
-                <.icon name="hero-chevron-right" class="w-5 h-5" />
-              </.link>
-            <% else %>
-              <span class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/30 text-gray-500 rounded-lg border border-slate-700/30 cursor-not-allowed font-medium">
-                Day {@day_number + 1}
-                <.icon name="hero-chevron-right" class="w-5 h-5" />
-              </span>
-            <% end %>
+            <.link
+              :if={@has_next}
+              navigate={~p"/day/#{@day_number + 1}"}
+              class="flex items-center gap-2 px-5 py-2.5 bg-slate-800/70 hover:bg-slate-700/70 text-white rounded-lg border border-purple-500/30 hover:border-purple-500/60 transition-all duration-200 transform hover:scale-105 font-medium"
+            >
+              Day {@day_number + 1}
+              <.icon name="hero-chevron-right" class="w-5 h-5" />
+            </.link>
           </div>
 
           <%= if @day_module do %>
