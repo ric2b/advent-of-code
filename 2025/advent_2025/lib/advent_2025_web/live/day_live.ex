@@ -19,6 +19,7 @@ defmodule Advent2025Web.DayLive do
 
         socket =
           socket
+          |> assign(:page_title, "Day #{day_number}")
           |> assign(:day, day)
           |> assign(:day_number, day_number)
           |> assign(:day_module, day_module)
@@ -39,6 +40,7 @@ defmodule Advent2025Web.DayLive do
       {:error, :not_found} ->
         socket =
           socket
+          |> assign(:page_title, "Day #{day_number}")
           |> put_flash(:error, "Day #{day_number} not found")
           |> assign(:day, day)
           |> assign(:day_number, day_number)

@@ -32,8 +32,8 @@ defmodule Advent2025Web.HomeLive do
 
     socket =
       socket
+      |> assign(:page_title, "Home")
       |> assign(:days, days)
-      |> assign(:example_code, @example_code)
 
     {:ok, socket}
   end
