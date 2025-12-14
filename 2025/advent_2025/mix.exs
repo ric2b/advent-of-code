@@ -69,6 +69,8 @@ defmodule Advent2025.MixProject do
       {:dotenvy, "~> 1.0.0"},
       {:httpoison, "~> 2.3"},
       {:memoize, "~> 1.4"},
+      {:makeup, "~> 1.1"},
+      {:makeup_elixir, "~> 1.0"},
       # {:dantzig, "~> 0.2.0"}
       {:dantzig, github: "ric2b/dantzig", branch: "master"}
     ]

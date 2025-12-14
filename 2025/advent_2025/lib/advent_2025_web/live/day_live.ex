@@ -33,6 +33,8 @@ defmodule Advent2025Web.DayLive do
           |> assign(:part1_loading, false)
           |> assign(:part2_result, nil)
           |> assign(:part2_loading, false)
+          |> assign(:show_code, false)
+          |> assign(:source_code, get_source_code(day_number))
           |> start_calculations()
 
         {:ok, socket}
@@ -89,6 +91,11 @@ defmodule Advent2025Web.DayLive do
       |> start_calculations()
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("toggle_code", _params, socket) do
+    {:noreply, assign(socket, show_code: !socket.assigns.show_code)}
   end
 
   defp start_calculations(socket) do
@@ -188,6 +195,21 @@ defmodule Advent2025Web.DayLive do
   end
 
   defp get_default_input(_), do: @default_input
+
+  defp get_source_code(day_number) do
+    day_padded = String.pad_leading(to_string(day_number), 2, "0")
+    path = Path.join([:code.priv_dir(:advent_2025), "..", "lib", "advent_2025", "day_#{day_padded}.ex"])
+
+    case File.read(path) do
+      {:ok, content} ->
+        content
+        |> Makeup.Lexers.ElixirLexer.lex()
+        |> Makeup.Formatters.HTML.HTMLFormatter.format_inner_as_binary([])
+
+      {:error, _} ->
+        "Source code not available"
+    end
+  end
 
   @impl true
   def render(assigns) do
@@ -390,6 +412,34 @@ defmodule Advent2025Web.DayLive do
                   </div>
                 </div>
               </div>
+            </div>
+
+            <%!-- Solution Code Section --%>
+            <div class="mt-8">
+              <button
+                phx-click="toggle_code"
+                class="w-full flex items-center justify-between px-6 py-4 bg-slate-800/50 backdrop-blur-sm rounded-lg border border-purple-500/30 hover:border-purple-500/60 transition-all duration-200 text-white font-medium"
+              >
+                <span class="flex items-center gap-2">
+                  <.icon name="hero-code-bracket" class="w-6 h-6 text-purple-400" />
+                  View Solution Code
+                </span>
+                <.icon
+                  name={if @show_code, do: "hero-chevron-up", else: "hero-chevron-down"}
+                  class="w-5 h-5 text-purple-400"
+                />
+              </button>
+
+              <%= if @show_code do %>
+                <div class="mt-4 bg-slate-900/80 rounded-lg border border-slate-700 overflow-hidden">
+                  <div class="flex items-center justify-between px-4 py-2 bg-slate-800/50 border-b border-slate-700">
+                    <span class="text-sm text-gray-400 font-mono">
+                      lib/advent_2025/day_{String.pad_leading(to_string(@day_number), 2, "0")}.ex
+                    </span>
+                  </div>
+                  <pre class="p-4 overflow-x-auto text-sm"><code class="font-mono"><%= raw(@source_code) %></code></pre>
+                </div>
+              <% end %>
             </div>
           <% else %>
             <div class="text-center py-12">

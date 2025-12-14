@@ -136,6 +136,15 @@
   }
 }
 
+/* Makeup syntax highlighting */
+.k, .kd, .kn, .kp, .kr, .kt { color: #c678dd; }  /* Keywords */
+.nc, .nf, .nn { color: #61afef; }  /* Names */
+.s, .s1, .s2, .sd, .se, .sh, .si, .ss { color: #98c379; }  /* Strings */
+.m, .mf, .mh, .mi, .mo { color: #d19a66; }  /* Numbers */
+.c, .c1, .cm, .cp { color: #5c6370; font-style: italic; }  /* Comments */
+.o, .ow { color: #56b6c2; }  /* Operators */
+.na { color: #e5c07b; }  /* Attributes */
+
 .snowflake {
   position: fixed;
   top: -5%;
@@ -158,11 +167,3 @@
 .snowflake:nth-child(9) { left: 85%; animation-duration: 17s, 4.2s; animation-delay: 3.5s; font-size: 0.85rem; opacity: 0.7; }
 .snowflake:nth-child(10) { left: 95%; animation-duration: 12s, 2.8s; animation-delay: 1.2s; font-size: 1rem; opacity: 0.8; }
 
-.star-twinkle {
-  animation: twinkle 2s ease-in-out infinite;
-}
-
-.star-twinkle-delay {
-  animation: twinkle 2s ease-in-out infinite;
-  animation-delay: 0.5s;
-}
