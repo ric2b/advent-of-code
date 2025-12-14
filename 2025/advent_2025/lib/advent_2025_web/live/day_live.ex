@@ -198,7 +198,7 @@ defmodule Advent2025Web.DayLive do
 
   defp get_source_code(day_number) do
     day_padded = String.pad_leading(to_string(day_number), 2, "0")
-    path = Path.join([:code.priv_dir(:advent_2025), "..", "lib", "advent_2025", "day_#{day_padded}.ex"])
+    path = Path.join(["lib", "advent_2025", "day_#{day_padded}.ex"])
 
     case File.read(path) do
       {:ok, content} ->
