@@ -266,6 +266,7 @@ defmodule Advent2025Web.DayLive do
                   <form phx-change="update_input">
                     <textarea
                       name="input"
+                      phx-debounce="200"
                       class="w-full h-96 bg-slate-900/80 text-green-300 font-mono text-sm p-4 rounded-lg border border-slate-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none resize-none"
                       placeholder="Enter your puzzle input here..."
                     >{@input}</textarea>
