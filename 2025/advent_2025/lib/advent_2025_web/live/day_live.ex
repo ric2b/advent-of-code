@@ -187,6 +187,15 @@ defmodule Advent2025Web.DayLive do
             <h1 class="text-5xl font-bold text-white mb-4">
               🎄 Advent of Code 2025 🎄
             </h1>
+            <a
+              href={"https://adventofcode.com/2025/day/#{@day_number}"}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 text-purple-300 hover:text-purple-100 text-sm transition-colors"
+            >
+              <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" />
+              View Problem on Advent of Code
+            </a>
             <h2 class="text-3xl font-semibold text-green-400 mb-2">
               Day {@day_number}
             </h2>
