@@ -103,3 +103,66 @@
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /* This file is for your main application CSS */
+
+/* Festive snowflake animations */
+@keyframes snowfall {
+  0% {
+    top: -5%;
+    opacity: 1;
+  }
+  100% {
+    top: 105%;
+    opacity: 0.3;
+  }
+}
+
+@keyframes sway {
+  0%, 100% {
+    margin-left: 0;
+  }
+  50% {
+    margin-left: 20px;
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+}
+
+.snowflake {
+  position: fixed;
+  top: -5%;
+  color: white;
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 1;
+  animation: snowfall linear infinite, sway ease-in-out infinite;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.snowflake:nth-child(1) { left: 5%; animation-duration: 12s, 3s; animation-delay: 0s; font-size: 0.8rem; opacity: 0.7; }
+.snowflake:nth-child(2) { left: 15%; animation-duration: 15s, 4s; animation-delay: 1s; font-size: 1.2rem; opacity: 0.8; }
+.snowflake:nth-child(3) { left: 25%; animation-duration: 10s, 2.5s; animation-delay: 2s; font-size: 0.6rem; opacity: 0.6; }
+.snowflake:nth-child(4) { left: 35%; animation-duration: 18s, 3.5s; animation-delay: 0.5s; font-size: 1rem; opacity: 0.9; }
+.snowflake:nth-child(5) { left: 45%; animation-duration: 13s, 4.5s; animation-delay: 3s; font-size: 0.9rem; opacity: 0.7; }
+.snowflake:nth-child(6) { left: 55%; animation-duration: 16s, 3s; animation-delay: 1.5s; font-size: 1.1rem; opacity: 0.8; }
+.snowflake:nth-child(7) { left: 65%; animation-duration: 11s, 2s; animation-delay: 2.5s; font-size: 0.7rem; opacity: 0.6; }
+.snowflake:nth-child(8) { left: 75%; animation-duration: 14s, 3.8s; animation-delay: 0.8s; font-size: 1.3rem; opacity: 0.9; }
+.snowflake:nth-child(9) { left: 85%; animation-duration: 17s, 4.2s; animation-delay: 3.5s; font-size: 0.85rem; opacity: 0.7; }
+.snowflake:nth-child(10) { left: 95%; animation-duration: 12s, 2.8s; animation-delay: 1.2s; font-size: 1rem; opacity: 0.8; }
+
+.star-twinkle {
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+.star-twinkle-delay {
+  animation: twinkle 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
