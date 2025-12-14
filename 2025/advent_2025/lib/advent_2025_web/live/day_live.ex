@@ -73,6 +73,17 @@ defmodule Advent2025Web.DayLive do
     socket =
       socket
       |> assign(:input, get_default_input(socket.assigns.day_module))
+      |> push_event("clear_saved_input", %{})
+      |> start_calculations()
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("load_saved_input", %{"input" => input}, socket) do
+    socket =
+      socket
+      |> assign(:input, input)
       |> start_calculations()
 
     {:noreply, socket}
@@ -274,12 +285,40 @@ defmodule Advent2025Web.DayLive do
 
                   <form phx-change="update_input">
                     <textarea
+                      id={"input-day-#{@day_number}"}
                       name="input"
+                      phx-hook=".PersistInput"
                       phx-debounce="200"
+                      data-day={@day_number}
                       class="w-full h-96 bg-slate-900/80 text-green-300 font-mono text-sm p-4 rounded-lg border border-slate-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 outline-none resize-none"
                       placeholder="Enter your puzzle input here..."
                     >{@input}</textarea>
                   </form>
+                  <script :type={Phoenix.LiveView.ColocatedHook} name=".PersistInput">
+                    export default {
+                      mounted() {
+                        const day = this.el.dataset.day;
+                        const storageKey = `aoc2025_day_${day}_input`;
+
+                        // Load saved input on mount
+                        const savedInput = localStorage.getItem(storageKey);
+                        if (savedInput) {
+                          this.el.value = savedInput;
+                          this.pushEvent("load_saved_input", { input: savedInput });
+                        }
+
+                        // Save input on change
+                        this.el.addEventListener("input", (e) => {
+                          localStorage.setItem(storageKey, e.target.value);
+                        });
+
+                        // Clear saved input when reset
+                        this.handleEvent("clear_saved_input", () => {
+                          localStorage.removeItem(storageKey);
+                        });
+                      }
+                    }
+                  </script>
                 </div>
               </div>
 
