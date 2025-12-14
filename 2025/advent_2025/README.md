@@ -1,5 +1,7 @@
 # Advent2025
 
+Deployed at advent-2025 dot gigalixirapp dot com
+
 To start your Phoenix server:
 
 * Run `mix setup` to install and setup dependencies
