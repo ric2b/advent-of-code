@@ -5,6 +5,20 @@ defmodule Advent2025Web.DayLive do
   Enter your puzzle input here...
   """
 
+  # Embed source code at compile time so it's available in production
+  @source_codes (for day <- 1..12, into: %{} do
+                   day_padded = String.pad_leading(to_string(day), 2, "0")
+                   path = Path.join(["lib", "advent_2025", "day_#{day_padded}.ex"])
+
+                   content =
+                     case File.read(path) do
+                       {:ok, content} -> content
+                       {:error, _} -> nil
+                     end
+
+                   {day, content}
+                 end)
+
   @impl true
   def mount(%{"day" => day}, _session, socket) do
     day_number = String.to_integer(day)
@@ -197,17 +211,14 @@ defmodule Advent2025Web.DayLive do
   defp get_default_input(_), do: @default_input
 
   defp get_source_code(day_number) do
-    day_padded = String.pad_leading(to_string(day_number), 2, "0")
-    path = Path.join(["lib", "advent_2025", "day_#{day_padded}.ex"])
+    case Map.get(@source_codes, day_number) do
+      nil ->
+        "Source code not available"
 
-    case File.read(path) do
-      {:ok, content} ->
+      content ->
         content
         |> Makeup.Lexers.ElixirLexer.lex()
         |> Makeup.Formatters.HTML.HTMLFormatter.format_inner_as_binary([])
-
-      {:error, _} ->
-        "Source code not available"
     end
   end
 
