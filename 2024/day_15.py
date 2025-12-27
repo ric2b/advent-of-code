@@ -46,15 +46,15 @@ example3 = '''\
 #.....#
 #######
 
-<vv<<^^
+<vv<<^^<<^^
 '''
 
 # input = example
 # input = example2
-input = example3
+# input = example3
 
-# with open('inputs/day_15.txt', 'r') as input_file:
-    # input = input_file.read()
+with open('inputs/day_15.txt', 'r') as input_file:
+    input = input_file.read()
 
 raw_map, raw_movements = input.split('\n\n')
 
@@ -137,76 +137,96 @@ def widen_map(map):
 
 map = widen_map(load_map(raw_map))
 
-for row in map:
-    print(''.join(row))
+def print_map(map):
+    for row in map:
+        print(''.join(row))
 
-def invert_movement(movement):
-    return -movement[0], -movement[1]
-
-def wide_move(map, location, movement, test=False):
+def can_move(map, location, movement):
     y, x = location
-    dy, dx = movement
     entity = map[y][x]
+    
+    dy, dx = movement
+    ty, tx = y+dy, x+dx
 
     if entity == '.':
         return True
     if entity == '#':
         return False
-
-    new_y = y + dy
-    new_x = x + dx
-
-    if dy == 0:
-        if entity == '[':
-            if not wide_move(map, (new_y, new_x + 1), movement):
-                return False
-            map[y][x], map[y][x + 1], map[y][x + 2] = '.', '[', ']'
-            return True
-        if entity == ']':
-            if not wide_move(map, (new_y, new_x - 1), movement):
-                return False
-            map[y][x - 2], map[y][x - 1], map[y][x] = '[', ']', '.'
-            return True
+    if entity == '@':
+        return can_move(map, (ty, tx), movement)
 
     if entity == '[':
-        moved_left, moved_right = wide_move(map, (new_y, new_x), movement), wide_move(map, (new_y, new_x + 1), movement)
-        if not moved_left or not moved_right:
-            if not moved_left and moved_right:
-                wide_move(map, (new_y, new_x + 1), invert_movement(movement))
-            if moved_left and not moved_right:
-                wide_move(map, (new_y, new_x), invert_movement(movement))
-            return False
-
-        map[y][x], map[y][x + 1] = '.', '.'
-        map[new_y][new_x], map[new_y][new_x + 1] = '[', ']'
-        return True
-
+        if dy != 0:
+            return can_move(map, (ty, tx), movement) and can_move(map, (ty, tx + 1), movement)
+        if dx < 0:
+            return can_move(map, (ty, tx), movement)
+        if dx > 0:
+            return can_move(map, (ty, tx + 1), movement)
     if entity == ']':
-        moved_left, moved_right = wide_move(map, (new_y, new_x - 1), movement), wide_move(map, (new_y, new_x), movement)
+        if dy != 0:
+            return can_move(map, (ty, tx - 1), movement) and can_move(map, (ty, tx), movement)
+        if dx < 0:
+            return can_move(map, (ty, tx - 1), movement)
+        if dx > 0:
+            return can_move(map, (ty, tx), movement)
 
-        if not moved_left or not moved_right:
-            if not moved_left and moved_right:
-                wide_move(map, (new_y, new_x - 1), invert_movement(movement))
-            if moved_left and not moved_right:
-                wide_move(map, (new_y, new_x), invert_movement(movement))
-            return False
+    raise ValueError(f'Invalid entity: {entity} at ({y}, {x})')
 
-        map[y][x], map[y][x - 1] = '.', '.'
-        map[new_y][new_x - 1], map[new_y][new_x] = '[', ']'
-        return True
+def wide_move(map, location, movement):
+    y, x = location
+    dy, dx = movement
+    entity = map[y][x]
 
-    if not wide_move(map, (new_y, new_x), movement):
+    if entity in ['.', '#']:
         return False
 
-    map[y][x] = '.'
-    map[new_y][new_x] = entity
+    ty, tx = y + dy, x + dx
+
+    if dy != 0:
+        if entity == '@':
+            wide_move(map, (ty, tx), movement)
+            map[ty][tx] = '@'
+            map[y][x] = '.'
+        if entity == '[':
+            wide_move(map, (ty, tx), movement)
+            wide_move(map, (ty, tx + 1), movement)
+            map[ty][tx], map[ty][tx + 1] = '[', ']'
+            map[y][x], map[y][x + 1] = '.', '.'
+        if entity == ']':
+            wide_move(map, (ty, tx - 1), movement)
+            wide_move(map, (ty, tx), movement)
+            map[ty][tx - 1], map[ty][tx] = '[', ']'
+            map[y][x - 1], map[y][x] = '.', '.'
+
+    if dx != 0:
+        if entity == '@':
+            wide_move(map, (ty, tx), movement)
+            map[ty][tx] = '@'
+            map[y][x] = '.'
+        
+        if entity == '[':
+            if dx < 0:
+                wide_move(map, (ty, tx), movement)
+                map[y][x - 1], map[y][x], map[y][x + 1] = '[', ']', '.'
+            if dx > 0:
+                wide_move(map, (ty, tx + 1), movement)
+                map[y][x], map[y][x + 1], map[y][x + 2] = '.', '[', ']'
+        
+        if entity == ']':
+            if dx < 0:
+                wide_move(map, (ty, tx - 1), movement)
+                map[y][x - 2], map[y][x - 1], map[y][x] = '[', ']', '.'
+            if dx > 0:
+                wide_move(map, (ty, tx), movement)
+                map[y][x], map[y][x + 1], map[y][x + 2] = '.', '[', ']'
+
     return True
 
 for movement in movements:
-    wide_move(map, find_robot(map), movement)
+    robot_location = find_robot(map)
 
-for row in map:
-    print(''.join(row))
+    if can_move(map, robot_location, movement):
+        wide_move(map, robot_location, movement)
 
 box_gps = []
 for i, row in enumerate(map):
